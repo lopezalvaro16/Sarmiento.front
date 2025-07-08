@@ -28,11 +28,13 @@ function StockSection({ modalOpen, setModalOpen }) {
   const [movimientos, setMovimientos] = useState([]);
   const [movProdNombre, setMovProdNombre] = useState('');
 
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchProductos = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:3001/productos_buffet');
+        const res = await fetch(`${apiUrl}/productos_buffet`);
         const data = await res.json();
         setProductos(data);
         setError('');
@@ -56,14 +58,14 @@ function StockSection({ modalOpen, setModalOpen }) {
     setLoadingBtn(true);
     try {
       if (editId) {
-        const res = await fetch(`http://localhost:3001/productos_buffet/${editId}`, {
+        const res = await fetch(`${apiUrl}/productos_buffet/${editId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
         if (!res.ok) throw new Error('Error al editar producto');
       } else {
-        const res = await fetch('http://localhost:3001/productos_buffet', {
+        const res = await fetch(`${apiUrl}/productos_buffet`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
@@ -102,7 +104,7 @@ function StockSection({ modalOpen, setModalOpen }) {
     if (!window.confirm('¿Seguro que querés dar de baja este producto?')) return;
     setLoadingBtn(true);
     try {
-      const res = await fetch(`http://localhost:3001/productos_buffet/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${apiUrl}/productos_buffet/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar producto');
       toast({ description: 'Producto dado de baja con éxito' });
     } catch (err) {
@@ -124,7 +126,7 @@ function StockSection({ modalOpen, setModalOpen }) {
     setMovProdNombre(producto.nombre);
     setHistorialModalOpen(true);
     try {
-      const res = await fetch(`http://localhost:3001/productos_buffet/${producto.id}/movimientos`);
+      const res = await fetch(`${apiUrl}/productos_buffet/${producto.id}/movimientos`);
       const data = await res.json();
       setMovimientos(data);
     } catch (err) {

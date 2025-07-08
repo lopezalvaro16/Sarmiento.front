@@ -16,6 +16,8 @@ function HorariosSection() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 700);
   const [loading, setLoading] = useState(true);
 
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 700);
     window.addEventListener('resize', handleResize);
@@ -26,7 +28,7 @@ function HorariosSection() {
     const fetchReservas = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:3001/reservas');
+        const res = await fetch(`${apiUrl}/reservas`);
         const data = await res.json();
         setReservas(data);
         const unicas = Array.from(new Set(data.map(r => String(r.cancha))));

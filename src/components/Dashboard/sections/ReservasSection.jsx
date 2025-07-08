@@ -141,12 +141,13 @@ function ReservasSection({ modalOpen, setModalOpen }) {
   const [toast, setToast] = useState({ message: '', type: 'info' });
   const [filtroSocio, setFiltroSocio] = useState('');
   const [filtroCancha, setFiltroCancha] = useState('todas');
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchReservas = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:3001/reservas');
+        const res = await fetch(`${apiUrl}/reservas`);
         const data = await res.json();
         setReservas(data);
         setError('');
@@ -160,7 +161,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
 
   const handleCreateReserva = async (form) => {
     try {
-      const res = await fetch('http://localhost:3001/reservas', {
+      const res = await fetch(`${apiUrl}/reservas`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -177,7 +178,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
 
   const handleEditReserva = async (form) => {
     try {
-      const res = await fetch(`http://localhost:3001/reservas/${editReserva.id}`, {
+      const res = await fetch(`${apiUrl}/reservas/${editReserva.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -197,7 +198,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
   const handleDelete = async (id) => {
     if (!window.confirm('¿Seguro que querés eliminar la reserva?')) return;
     try {
-      const res = await fetch(`http://localhost:3001/reservas/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${apiUrl}/reservas/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar');
       setReservas(prev => prev.filter(r => r.id !== id));
       setToast({ message: 'Reserva eliminada', type: 'success' });

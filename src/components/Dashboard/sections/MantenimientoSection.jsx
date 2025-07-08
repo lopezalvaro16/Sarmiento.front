@@ -28,12 +28,13 @@ function MantenimientoSection() {
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [loadingEstadoId, setLoadingEstadoId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchTareas = async () => {
       setLoading(true);
       try {
-        let url = 'http://localhost:3001/mantenimientos';
+        let url = `${apiUrl}/mantenimientos`;
         const params = [];
         if (filtroEstado && filtroEstado !== 'todos') params.push(`estado=${filtroEstado}`);
         if (filtroCancha && filtroCancha !== 'todas') params.push(`cancha=${filtroCancha}`);
@@ -59,7 +60,7 @@ function MantenimientoSection() {
     if (!form.fecha || !form.descripcion || !form.cancha) return;
     setLoadingBtn(true);
     try {
-      const res = await fetch('http://localhost:3001/mantenimientos', {
+      const res = await fetch(`${apiUrl}/mantenimientos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, estado: 'pendiente' }),
@@ -79,7 +80,7 @@ function MantenimientoSection() {
   const cambiarEstado = async (id, nuevoEstado) => {
     setLoadingEstadoId(id);
     try {
-      const res = await fetch(`http://localhost:3001/mantenimientos/${id}`, {
+      const res = await fetch(`${apiUrl}/mantenimientos/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ estado: nuevoEstado }),

@@ -9,11 +9,13 @@ function VentasSection() {
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [error, setError] = useState('');
 
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchVentas = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:3001/ventas_buffet');
+        const res = await fetch(`${apiUrl}/ventas_buffet`);
         const data = await res.json();
         setVentas(data);
         setError('');
@@ -24,7 +26,7 @@ function VentasSection() {
     };
     const fetchProductos = async () => {
       try {
-        const res = await fetch('http://localhost:3001/productos_buffet');
+        const res = await fetch(`${apiUrl}/productos_buffet`);
         const data = await res.json();
         setProductos(data);
       } catch {}
@@ -39,7 +41,7 @@ function VentasSection() {
     e.preventDefault();
     setLoadingBtn(true);
     try {
-      const res = await fetch('http://localhost:3001/ventas_buffet', {
+      const res = await fetch(`${apiUrl}/ventas_buffet`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
