@@ -116,9 +116,9 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
 
 function formatFecha(fecha) {
   if (!fecha) return '';
-  const d = new Date(fecha);
-  if (isNaN(d)) return fecha;
-  return d.toLocaleDateString('es-AR');
+  const soloFecha = fecha.split('T')[0];
+  const [y, m, d] = soloFecha.split('-');
+  return `${d}/${m}/${y}`;
 }
 
 function formatHora(hora) {
