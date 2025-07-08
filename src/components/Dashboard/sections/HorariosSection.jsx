@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { FaLock } from 'react-icons/fa';
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const HORAS = Array.from({ length: 16 }, (_, i) => 8 + i); // 8 a 23
@@ -135,19 +136,24 @@ function HorariosSection() {
               {getBloquesDia(canchaSel, diaSel).map((bloque, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-lg border ${
+                  className={`p-3 rounded-lg border transition-all duration-200 flex items-center gap-2 ${
                     bloque.tipo === 'ocupado'
-                      ? 'bg-red-50 border-red-200 text-red-800'
+                      ? 'bg-red-200 border-2 border-red-400 text-red-900 font-bold shadow-md'
                       : 'bg-green-50 border-green-200 text-green-800'
                   }`}
                 >
-                  <div className="font-medium">
-                    {minutosAHoraStr(bloque.desde)} - {minutosAHoraStr(bloque.hasta)}
-                  </div>
-                  <div className="text-sm">
-                    {bloque.tipo === 'ocupado'
-                      ? `Ocupado - ${bloque.socio} (${bloque.reserva.hora_desde.slice(0,5)}-${bloque.reserva.hora_hasta.slice(0,5)})`
-                      : 'Libre'}
+                  {bloque.tipo === 'ocupado' && (
+                    <FaLock className="text-red-700 mr-2" />
+                  )}
+                  <div>
+                    <div className="font-medium">
+                      {minutosAHoraStr(bloque.desde)} - {minutosAHoraStr(bloque.hasta)}
+                    </div>
+                    <div className="text-sm">
+                      {bloque.tipo === 'ocupado'
+                        ? `Ocupado - ${bloque.socio} (${bloque.reserva.hora_desde.slice(0,5)}-${bloque.reserva.hora_hasta.slice(0,5)})`
+                        : 'Libre'}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -160,7 +166,7 @@ function HorariosSection() {
               Libre
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-200 border border-red-300 rounded"></div>
+              <div className="w-4 h-4 bg-red-400 border-2 border-red-500 rounded"></div>
               Ocupado
             </div>
           </div>
