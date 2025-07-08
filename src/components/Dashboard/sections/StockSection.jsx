@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import styles from './StockSection.module.css';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { toast } from "sonner";
 
 const ESTADOS = [
-  { value: '', label: 'Todos' },
+  { value: 'todos', label: 'Todos' },
   { value: 'activo', label: 'Activo' },
   { value: 'inactivo', label: 'Inactivo' },
 ];
@@ -11,17 +19,15 @@ function StockSection({ modalOpen, setModalOpen }) {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filtroEstado, setFiltroEstado] = useState('activo');
+  const [filtroEstado, setFiltroEstado] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
   const [form, setForm] = useState({ nombre: '', cantidad: '', unidad: '', precio: '', proveedor: '' });
   const [editId, setEditId] = useState(null);
   const [loadingBtn, setLoadingBtn] = useState(false);
-  const isMobile = window.innerWidth <= 700;
   const [historialModalOpen, setHistorialModalOpen] = useState(false);
   const [movimientos, setMovimientos] = useState([]);
   const [movProdNombre, setMovProdNombre] = useState('');
 
-  // Cargar productos
   useEffect(() => {
     const fetchProductos = async () => {
       setLoading(true);
@@ -38,14 +44,13 @@ function StockSection({ modalOpen, setModalOpen }) {
     fetchProductos();
   }, [loadingBtn]);
 
-  // Filtros y búsqueda
   const productosFiltrados = productos.filter(p =>
-    (filtroEstado === '' || p.estado === filtroEstado) &&
+    (filtroEstado === 'todos' || p.estado === filtroEstado) &&
     (busqueda === '' || p.nombre.toLowerCase().includes(busqueda.toLowerCase()))
   );
 
-  // Manejo de formulario
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  
   const handleSubmit = async e => {
     e.preventDefault();
     setLoadingBtn(true);
@@ -68,20 +73,19 @@ function StockSection({ modalOpen, setModalOpen }) {
       setForm({ nombre: '', cantidad: '', unidad: '', precio: '', proveedor: '' });
       setEditId(null);
       setModalOpen(false);
+      toast({ description: editId ? 'Producto editado con éxito' : 'Producto agregado con éxito' });
     } catch (err) {
-      setError('Error al guardar producto');
+      toast({ description: 'Error al guardar producto', variant: 'destructive' });
     }
     setLoadingBtn(false);
   };
 
-  // Abrir modal para alta
   const handleOpenModal = () => {
     setForm({ nombre: '', cantidad: '', unidad: '', precio: '', proveedor: '' });
     setEditId(null);
     setModalOpen(true);
   };
 
-  // Editar producto
   const handleEdit = prod => {
     setForm({
       nombre: prod.nombre,
@@ -94,19 +98,19 @@ function StockSection({ modalOpen, setModalOpen }) {
     setModalOpen(true);
   };
 
-  // Dar de baja producto
   const handleDelete = async id => {
+    if (!window.confirm('¿Seguro que querés dar de baja este producto?')) return;
     setLoadingBtn(true);
     try {
       const res = await fetch(`http://localhost:3001/productos_buffet/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar producto');
+      toast({ description: 'Producto dado de baja con éxito' });
     } catch (err) {
-      setError('Error al eliminar producto');
+      toast({ description: 'Error al eliminar producto', variant: 'destructive' });
     }
     setLoadingBtn(false);
   };
 
-  // Función para mostrar cantidad en formato '10×6' si hay dos números
   function formatCantidadMobile(cantidad) {
     if (!cantidad) return '';
     const partes = String(cantidad).split(/\s+/).filter(Boolean);
@@ -127,6 +131,7 @@ function StockSection({ modalOpen, setModalOpen }) {
       setMovimientos([]);
     }
   };
+  
   const handleCloseHistorial = () => {
     setHistorialModalOpen(false);
     setMovimientos([]);
@@ -134,119 +139,242 @@ function StockSection({ modalOpen, setModalOpen }) {
   };
 
   return (
-    <div className={styles.wrapper}>
-      <h3>Stock de Buffet</h3>
-      <div className={styles.filtrosRow}>
-        <div className={styles.filtros}>
-          <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)} className={styles.filtroSelect}>
-            {ESTADOS.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
-          </select>
-          <input type='text' placeholder='Buscar producto...' value={busqueda} onChange={e => setBusqueda(e.target.value)} className={styles.filtroInput} />
-        </div>
-        {!modalOpen && <button className={styles.addBtnTop} onClick={handleOpenModal}>+ Agregar producto</button>}
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <h2 className="text-2xl font-bold">Stock de Buffet</h2>
+        <Button onClick={handleOpenModal}>+ Agregar producto</Button>
       </div>
-      {/* Botón flotante mobile */}
-      {!modalOpen && <button className={styles.addBtnFloat} onClick={handleOpenModal}>+</button>}
-      {/* Modal alta/edición */}
-      {modalOpen && (
-        <div className={styles.modalOverlay} onClick={() => setModalOpen(false)}>
-          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-            <h4>{editId ? 'Editar producto' : 'Agregar producto'}</h4>
-            <form className={styles.form} onSubmit={handleSubmit}>
-              <label htmlFor='nombre'>Nombre</label>
-              <input id='nombre' type='text' name='nombre' value={form.nombre} onChange={handleChange} placeholder='Nombre*' required />
-              <label htmlFor='cantidad'>Cantidad</label>
-              <input id='cantidad' type='text' name='cantidad' value={form.cantidad} onChange={handleChange} placeholder='Cantidad* (Ej: 10 6)' required />
-              <label htmlFor='unidad'>Unidad</label>
-              <input id='unidad' type='text' name='unidad' value={form.unidad} onChange={handleChange} placeholder='Unidad*' required />
-              <label htmlFor='precio'>Precio</label>
-              <input id='precio' type='number' name='precio' value={form.precio} onChange={handleChange} placeholder='Precio' min='0' step='0.01' />
-              <label htmlFor='proveedor'>Proveedor</label>
-              <input id='proveedor' type='text' name='proveedor' value={form.proveedor} onChange={handleChange} placeholder='Proveedor' />
-              <button type='submit' className={styles.addBtn} disabled={loadingBtn}>{loadingBtn ? 'Guardando...' : (editId ? 'Guardar cambios' : 'Agregar producto')}</button>
-              <button type='button' className={styles.cancelBtn} onClick={() => setModalOpen(false)}>Cancelar</button>
-            </form>
-          </div>
+
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
+          <Label htmlFor="filtroEstado">Estado</Label>
+          <Select value={filtroEstado} onValueChange={setFiltroEstado}>
+            <SelectTrigger>
+              <SelectValue placeholder="Seleccionar estado" />
+            </SelectTrigger>
+            <SelectContent>
+              {ESTADOS.map(e => (
+                <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      )}
-      {/* Listado */}
-      {loading ? <div className={styles.loading}>Cargando...</div> : error ? <div className={styles.error}>{error}</div> : (
+        <div className="flex-1">
+          <Label htmlFor="busqueda">Buscar producto</Label>
+          <Input
+            id="busqueda"
+            type="text"
+            placeholder="Buscar producto..."
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="text-center py-8">Cargando...</div>
+      ) : error ? (
+        <div className="text-red-500 text-center py-8">{error}</div>
+      ) : (
         <>
-          <div className={styles.cardsWrapper}>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {productosFiltrados.map(p => (
-              <div className={styles.card} key={p.id}>
-                <div className={styles.cardRow}><b>Nombre:</b> {p.nombre}</div>
-                <div className={styles.cardRow}><b>Cantidad:</b> {isMobile ? formatCantidadMobile(p.cantidad) : `${p.cantidad}`}</div>
-                {isMobile && <div className={styles.cardRow}><b>Unidad:</b> {p.unidad}</div>}
-                <div className={styles.cardRow}><b>Precio:</b> {p.precio ? `$${p.precio}` : '-'}</div>
-                <div className={styles.cardRow}><b>Proveedor:</b> {p.proveedor || '-'}</div>
-                <div className={styles.cardRow}><b>Estado:</b> {p.estado}</div>
-                <div className={styles.cardRow}><b>Stock total:</b> {parseInt(p.cantidad || 0) * parseInt(p.unidad || 1)} unidades</div>
-                <div className={styles.cardActions}>
-                  <button className={styles.editBtn} onClick={() => handleEdit(p)} disabled={loadingBtn}>Editar</button>
-                  {p.estado === 'activo' && <button className={styles.deleteBtn} onClick={() => handleDelete(p.id)} disabled={loadingBtn}>Dar de baja</button>}
-                  <button className={styles.historialBtn} onClick={() => handleOpenHistorial(p)}>Ver historial</button>
-                </div>
-              </div>
+              <Card key={p.id}>
+                <CardHeader>
+                  <CardTitle className="text-lg">{p.nombre}</CardTitle>
+                  <Badge variant={p.estado === 'activo' ? 'default' : 'secondary'}>
+                    {p.estado}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div><strong>Cantidad:</strong> {p.cantidad}</div>
+                  <div><strong>Unidad:</strong> {p.unidad}</div>
+                  <div><strong>Precio:</strong> {p.precio ? `$${p.precio}` : '-'}</div>
+                  <div><strong>Proveedor:</strong> {p.proveedor || '-'}</div>
+                  <div><strong>Stock total:</strong> {parseInt(p.cantidad || 0) * parseInt(p.unidad || 1)} unidades</div>
+                  <div className="flex gap-2 pt-2">
+                    <Button size="sm" variant="outline" onClick={() => handleEdit(p)} disabled={loadingBtn}>
+                      Editar
+                    </Button>
+                    {p.estado === 'activo' && (
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(p.id)} disabled={loadingBtn}>
+                        Dar de baja
+                      </Button>
+                    )}
+                    <Button size="sm" variant="secondary" onClick={() => handleOpenHistorial(p)}>
+                      Ver historial
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
-          <table className={styles.tabla}>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Cantidad (packs)</th>
-                <th>Unidad (por pack)</th>
-                <th>Stock total (unidades)</th>
-                <th>Precio</th>
-                <th>Proveedor</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productosFiltrados.map(p => (
-                <tr key={p.id}>
-                  <td>{p.nombre}</td>
-                  <td>{p.cantidad}</td>
-                  <td>{p.unidad}</td>
-                  <td>{p.unidad_suelta}</td>
-                  <td>{p.precio ? `$${p.precio}` : '-'}</td>
-                  <td>{p.proveedor || '-'}</td>
-                  <td>{p.estado}</td>
-                  <td>
-                    <button className={styles.editBtn} onClick={() => handleEdit(p)} disabled={loadingBtn}>Editar</button>
-                    {p.estado === 'activo' && <button className={styles.deleteBtn} onClick={() => handleDelete(p.id)} disabled={loadingBtn}>Dar de baja</button>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* Modal historial de movimientos */}
-          {historialModalOpen && (
-            <div className={styles.modalOverlay} onClick={handleCloseHistorial}>
-              <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-                <h4>Historial de movimientos<br/> <span style={{fontWeight:400}}>{movProdNombre}</span></h4>
-                {movimientos.length === 0 ? (
-                  <div style={{color:'#fff', margin:'1.2em 0'}}>Sin movimientos registrados.</div>
-                ) : (
-                  <div className={styles.historialList}>
-                    {movimientos.map(mov => (
-                      <div key={mov.id} className={styles.historialItem}>
-                        <div><b>Fecha:</b> {new Date(mov.fecha).toLocaleString('es-AR')}</div>
-                        <div><b>Tipo:</b> {mov.tipo}</div>
-                        <div><b>Unidades:</b> {mov.cantidad}</div>
-                        <div><b>Responsable:</b> {mov.responsable || '-'}</div>
-                        <div><b>Obs:</b> {mov.observacion || '-'}</div>
+
+          <div className="hidden lg:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Cantidad (packs)</TableHead>
+                  <TableHead>Unidad (por pack)</TableHead>
+                  <TableHead>Stock total (unidades)</TableHead>
+                  <TableHead>Precio</TableHead>
+                  <TableHead>Proveedor</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {productosFiltrados.map(p => (
+                  <TableRow key={p.id}>
+                    <TableCell>{p.nombre}</TableCell>
+                    <TableCell>{p.cantidad}</TableCell>
+                    <TableCell>{p.unidad}</TableCell>
+                    <TableCell>{parseInt(p.cantidad || 0) * parseInt(p.unidad || 1)}</TableCell>
+                    <TableCell>{p.precio ? `$${p.precio}` : '-'}</TableCell>
+                    <TableCell>{p.proveedor || '-'}</TableCell>
+                    <TableCell>
+                      <Badge variant={p.estado === 'activo' ? 'default' : 'secondary'}>
+                        {p.estado}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handleEdit(p)} disabled={loadingBtn}>
+                          Editar
+                        </Button>
+                        {p.estado === 'activo' && (
+                          <Button size="sm" variant="destructive" onClick={() => handleDelete(p.id)} disabled={loadingBtn}>
+                            Dar de baja
+                          </Button>
+                        )}
+                        <Button size="sm" variant="secondary" onClick={() => handleOpenHistorial(p)}>
+                          Historial
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                )}
-                <button className={styles.cancelBtn} onClick={handleCloseHistorial}>Cerrar</button>
-              </div>
-            </div>
-          )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </>
       )}
+
+      {/* Modal alta/edición */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editId ? 'Editar producto' : 'Agregar producto'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="nombre">Nombre</Label>
+              <Input
+                id="nombre"
+                type="text"
+                name="nombre"
+                value={form.nombre}
+                onChange={handleChange}
+                placeholder="Nombre*"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cantidad">Cantidad</Label>
+              <Input
+                id="cantidad"
+                type="text"
+                name="cantidad"
+                value={form.cantidad}
+                onChange={handleChange}
+                placeholder="Cantidad* (Ej: 10 6)"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="unidad">Unidad</Label>
+              <Input
+                id="unidad"
+                type="text"
+                name="unidad"
+                value={form.unidad}
+                onChange={handleChange}
+                placeholder="Unidad*"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="precio">Precio</Label>
+              <Input
+                id="precio"
+                type="number"
+                name="precio"
+                value={form.precio}
+                onChange={handleChange}
+                placeholder="Precio"
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="proveedor">Proveedor</Label>
+              <Input
+                id="proveedor"
+                type="text"
+                name="proveedor"
+                value={form.proveedor}
+                onChange={handleChange}
+                placeholder="Proveedor"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" className="flex-1" disabled={loadingBtn}>
+                {loadingBtn ? 'Guardando...' : (editId ? 'Guardar cambios' : 'Agregar producto')}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal historial */}
+      <Dialog open={historialModalOpen} onOpenChange={handleCloseHistorial}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Historial de movimientos - {movProdNombre}</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-96 overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Cantidad</TableHead>
+                  <TableHead>Motivo</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {movimientos.map((m, i) => (
+                  <TableRow key={i}>
+                    <TableCell>{m.fecha}</TableCell>
+                    <TableCell>{m.tipo}</TableCell>
+                    <TableCell>{m.cantidad}</TableCell>
+                    <TableCell>{m.motivo}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {movimientos.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                No hay movimientos registrados
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -2,9 +2,15 @@ import React from 'react';
 
 function ComprasSection() {
   return (
-    <div>
-      <h3>Compras del Buffet</h3>
-      <p>Aquí puedes registrar y consultar compras del buffet.</p>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-gray-900">Gestión de Compras</h2>
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Bienvenido al módulo de Compras</h3>
+        <p className="text-gray-600">
+          Aquí puedes administrar las compras de productos para el buffet.
+          Usa el menú lateral para navegar entre las diferentes secciones.
+        </p>
+      </div>
     </div>
   );
 }

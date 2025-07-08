@@ -1,40 +1,196 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* Paleta de colores profesional azul, sin rojo principal */
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
 :root {
-  --color-bg: #181C23;
-  --color-bg-alt: #232936;
-  --color-surface: #262B38;
-  --color-primary: #2563EB;
-  --color-primary-dark: #1E40AF;
-  --color-secondary: #38BDF8;
-  --color-accent: #FBBF24;
-  --color-success: #22C55E;
-  --color-error: #EF4444;
-  --color-warning: #F59E42;
-  --color-info: #60A5FA;
-  --color-text: #F3F6F9;
-  --color-text-muted: #A1A7BB;
-  --color-border: #2D3343;
-  --color-shadow: #000A;
+  --background: #f7f7f7;
+  --foreground: #222;
+  --card: #fff;
+  --card-foreground: #222;
+  --popover: #fff;
+  --popover-foreground: #222;
+  --primary: #7ed6a7; /* verde menta */
+  --primary-foreground: #222;
+  --secondary: #b8b5ff; /* lavanda */
+  --secondary-foreground: #222;
+  --muted: #f6e7cb; /* beige */
+  --muted-foreground: #888;
+  --accent: #b8b5ff; /* lavanda */
+  --accent-foreground: #222;
+  --destructive: #ffb3ab; /* coral pastel */
+  --destructive-foreground: #222;
+  --border: #e0e0e0;
+  --input: #e0e0e0;
+  --ring: #7ed6a733;
+  --radius: 18px;
+  --shadow: 0 4px 24px 0 rgba(0,0,0,0.06);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  width: 100vw;
-  font-family: 'Inter', system-ui, Arial, sans-serif;
-  font-size: 16px;
-  color: var(--color-text);
-  background: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
 }
-#root {
-  height: 100vh;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+body {
+  font-family: 'Inter', 'San Francisco', system-ui, Arial, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 18px;
+  letter-spacing: 0.01em;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50 transition-all duration-200;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: #222;
+    letter-spacing: 0.01em;
+  }
+  button, input, select, textarea {
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
+  }
+  button {
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--primary);
+    font-weight: 500;
+    padding: 0.5em 1.2em;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+  }
+  button:active {
+    background: var(--secondary);
+  }
+  button.primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border: none;
+  }
+  button.danger {
+    background: var(--destructive);
+    color: var(--destructive-foreground);
+    border: none;
+  }
+  input, select, textarea {
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--foreground);
+    box-shadow: var(--shadow);
+    padding: 0.5em 1em;
+    backdrop-filter: blur(2px);
+  }
+  .card, .Card, .shadow-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    padding: 1.5em;
+    backdrop-filter: blur(8px);
+  }
+  .sidebar-blur {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(16px);
+    box-shadow: var(--shadow);
+    border-left: 1px solid var(--border);
+  }
+  .header-blur {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow);
+    border-bottom: 1px solid var(--border);
+  }
 }

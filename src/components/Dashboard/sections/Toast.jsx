@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import styles from './Toast.module.css';
 
 function Toast({ message, type = 'info', onClose, duration = 2500 }) {
   useEffect(() => {
@@ -12,8 +11,12 @@ function Toast({ message, type = 'info', onClose, duration = 2500 }) {
 
   if (!message) return null;
 
+  const bgColor = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+  
   return (
-    <div className={`${styles.toast} ${styles[type]}`}>{message}</div>
+    <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg text-white shadow-lg ${bgColor}`}>
+      {message}
+    </div>
   );
 }
 
