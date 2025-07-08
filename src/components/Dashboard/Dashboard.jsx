@@ -96,13 +96,13 @@ function Dashboard({ user, onLogout }) {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-[#f7f7f7] to-[#e9ecef]">
       {/* Sidebar para desktop */}
-      <aside className="hidden md:flex flex-col w-72 sidebar-blur p-6 gap-6 shadow-xl rounded-r-3xl mt-4 mb-4 ml-2">
+      <aside className="hidden md:flex flex-col w-72 sidebar-blur p-6 gap-6 shadow-xl rounded-r-3xl mt-4 mb-4 ml-2 h-screen fixed top-0 left-0 z-20">
         <div className="flex flex-col items-center gap-3 mb-8">
           <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-16 h-16 flex items-center justify-center text-3xl font-bold shadow-lg">S</div>
           <span className="font-semibold text-gray-900 text-lg">{admin.username}</span>
           <span className="text-xs text-gray-500">{admin.role}</span>
         </div>
-        <nav className="flex flex-col gap-3 w-full">
+        <nav className="flex flex-col gap-3 w-full flex-1">
           {(menuOptions[admin.role] || []).map(option => (
             <button
               key={option.label}
@@ -118,7 +118,7 @@ function Dashboard({ user, onLogout }) {
           ))}
         </nav>
         <button 
-          className="mt-auto flex items-center gap-2 px-4 py-3 bg-[#ffb3ab]/80 text-[#222] rounded-xl shadow-md hover:bg-[#ffb3ab] transition-all font-medium text-base"
+          className="flex items-center gap-2 px-4 py-3 bg-[#ffb3ab]/80 text-[#222] rounded-xl shadow-md hover:bg-[#ffb3ab] transition-all font-medium text-base mb-2"
           onClick={onLogout}
         >
           <FiLogOut className="text-lg" /> Cerrar sesión
@@ -172,7 +172,7 @@ function Dashboard({ user, onLogout }) {
         <span className="text-2xl text-[#7ed6a7]"><FiHome /></span>
       </button>
       {/* Contenido principal */}
-      <main className="flex-1 flex flex-col items-center p-4 overflow-y-auto">
+      <main className="flex-1 flex flex-col items-center p-4 overflow-y-auto md:ml-72">
         <div className="w-full max-w-5xl">
           {renderSection()}
         </div>
