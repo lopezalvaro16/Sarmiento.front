@@ -96,7 +96,8 @@ function Dashboard({ user, onLogout }) {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-[#f7f7f7] to-[#e9ecef]">
       {/* Sidebar para desktop */}
-      <aside className="hidden md:flex flex-col w-72 sidebar-blur p-6 gap-6 shadow-xl rounded-r-3xl mt-4 mb-4 ml-2 h-screen fixed top-0 left-0 z-20">
+      <aside className="hidden md:flex flex-col w-72 sidebar-blur p-6 gap-6 shadow-xl rounded-r-3xl mt-4 mb-4 ml-2 fixed top-0 left-0 z-20"
+        style={{height: 'calc(100vh - 2rem)'}}>
         <div className="flex flex-col items-center gap-3 mb-8">
           <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-16 h-16 flex items-center justify-center text-3xl font-bold shadow-lg">S</div>
           <span className="font-semibold text-gray-900 text-lg">{admin.username}</span>
