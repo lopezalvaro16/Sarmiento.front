@@ -1,10 +1,11 @@
 import React from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Login({ onLogin }) {
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -32,43 +33,43 @@ function Login({ onLogin }) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-900">
-      <div className="w-full max-w-sm bg-white rounded-lg shadow-lg p-6">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Club Sarmiento</h1>
-          <p className="text-gray-600">Ingreso de Administrador</p>
-        </div>
-        <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Usuario</label>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#181c1f] to-[#23272b] dark:from-[#181c1f] dark:to-[#23272b]">
+      <div className="w-full max-w-sm bg-white dark:bg-[#23272b] rounded-3xl shadow-2xl p-8 flex flex-col items-center gap-4 border border-gray-200 dark:border-[#353a40]">
+        <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-16 h-16 flex items-center justify-center text-3xl font-bold shadow-lg mb-2">S</div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">Club Sarmiento</h1>
+        <p className="text-gray-600 dark:text-gray-300 text-center mb-2">Ingreso de Administrador</p>
+        <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit} autoComplete="off">
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Usuario</label>
             <input
               id="username"
+              name="username"
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              autoFocus
-              required
               autoComplete="username"
               placeholder="Ej: canchas"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#353a40] bg-white dark:bg-[#181c1f] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#7ed6a7]"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              required
             />
           </div>
-          <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Contraseña</label>
             <input
               id="password"
+              name="password"
               type="password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoComplete="current-password"
+              placeholder="Tu contraseña"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-[#353a40] bg-white dark:bg-[#181c1f] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#b8b5ff]"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
-              autoComplete="current-password"
-              placeholder="Tu contraseña"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full py-2 rounded-lg bg-gradient-to-r from-[#7ed6a7] to-[#b8b5ff] text-[#23272b] font-semibold shadow hover:from-[#b8b5ff] hover:to-[#7ed6a7] transition-all text-lg mt-2 disabled:opacity-60"
             disabled={loading}
           >
             {loading ? 'Ingresando...' : 'Ingresar'}
