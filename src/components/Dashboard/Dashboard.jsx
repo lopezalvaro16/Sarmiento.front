@@ -201,7 +201,7 @@ function Dashboard({ user, onLogout }) {
       
       {/* Botón hamburguesa móvil mejorado */}
       <button 
-        className="fixed top-4 right-4 z-40 md:hidden bg-white/90 border border-[#e0e0e0] rounded-full p-4 shadow-xl backdrop-blur-[8px] hover:bg-[#b8b5ff]/40 transition-all duration-200 hover:scale-105"
+        className="fixed top-4 right-4 z-40 md:hidden bg-white dark:bg-[#23272b] border border-[#e0e0e0] dark:border-[#3a3f47] rounded-full p-4 shadow-xl backdrop-blur-[8px] hover:bg-[#b8b5ff]/40 dark:hover:bg-[#353a40]/60 transition-all duration-200 hover:scale-105"
         onClick={openSidebar}
         aria-label="Abrir menú"
       >
