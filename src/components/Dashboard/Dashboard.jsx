@@ -163,8 +163,8 @@ function Dashboard({ user, onLogout }) {
           >
             <div className="flex flex-col items-center gap-3 mb-8">
               <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-16 h-16 flex items-center justify-center text-3xl font-bold shadow-lg">S</div>
-              <span className="font-semibold text-gray-900 text-lg">{admin.username}</span>
-              <span className="text-xs text-gray-500">{admin.role}</span>
+              <span className="font-semibold text-gray-900 dark:text-gray-100 text-lg">{admin.username}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-300">{admin.role}</span>
               <button
                 className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 text-gray-700 shadow hover:bg-gray-200 transition-all"
                 onClick={() => setDarkMode(d => !d)}
