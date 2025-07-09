@@ -12,7 +12,7 @@ import StockSection from './sections/StockSection';
 import ComprasSection from './sections/ComprasSection';
 import VentasSection from './sections/VentasSection';
 import InicioSection from './sections/InicioSection';
-import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu } from 'react-icons/fi';
 
 function Dashboard({ user, onLogout }) {
   // Simulación de usuario si no se pasa por props
@@ -149,27 +149,36 @@ function Dashboard({ user, onLogout }) {
           <FiLogOut className="text-lg" /> Cerrar sesión
         </button>
       </aside>
-      {/* Sidebar móvil glassmorphism */}
+      
+      {/* Sidebar móvil mejorado */}
       {sidebarVisible && (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div className="fixed inset-0 z-50 md:hidden">
           <div
-            className={`fixed inset-0 transition-all duration-300 ${sidebarOpen ? 'bg-black/30 backdrop-blur-[2px] opacity-100' : 'bg-black/0 opacity-0'}`}
+            className={`fixed inset-0 transition-all duration-300 ${sidebarOpen ? 'bg-black/40 backdrop-blur-[2px] opacity-100' : 'bg-black/0 opacity-0'}`}
             onClick={closeSidebar}
           ></div>
           <div
-            className={`fixed right-0 top-0 h-full w-72 sidebar-blur p-6 flex flex-col gap-6 shadow-xl rounded-l-3xl mt-4 mb-4 mr-2 transform transition-transform duration-300 ease-in-out
+            className={`fixed right-0 top-0 h-full w-80 sidebar-blur p-6 flex flex-col gap-6 shadow-xl rounded-l-3xl mt-2 mb-2 mr-2 transform transition-transform duration-300 ease-in-out
               ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
           >
             <div className="flex flex-col items-center gap-3 mb-8">
               <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-16 h-16 flex items-center justify-center text-3xl font-bold shadow-lg">S</div>
               <span className="font-semibold text-gray-900 text-lg">{admin.username}</span>
               <span className="text-xs text-gray-500">{admin.role}</span>
+              <button
+                className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 text-gray-700 shadow hover:bg-gray-200 transition-all"
+                onClick={() => setDarkMode(d => !d)}
+                title={darkMode ? 'Modo claro' : 'Modo oscuro'}
+              >
+                {darkMode ? <FiSun className="text-xl" /> : <FiMoon className="text-xl" />}
+                {darkMode ? 'Claro' : 'Oscuro'}
+              </button>
             </div>
-            <nav className="flex flex-col gap-3 w-full">
+            <nav className="flex flex-col gap-3 w-full flex-1">
               {(menuOptions[admin.role] || []).map(option => (
                 <button
                   key={option.label}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-sm transition-all text-base font-medium
+                  className={`flex items-center gap-3 px-4 py-4 rounded-xl shadow-sm transition-all text-base font-medium
                     ${selectedSection === option.section 
                       ? 'bg-gradient-to-r from-[#7ed6a7]/80 to-[#b8b5ff]/80 text-[#222] shadow-md' 
                       : 'bg-white/60 text-gray-700 hover:bg-[#f6e7cb]/80'}
@@ -181,7 +190,7 @@ function Dashboard({ user, onLogout }) {
               ))}
             </nav>
             <button 
-              className="mt-auto flex items-center gap-2 px-4 py-3 bg-[#ffb3ab]/80 text-[#222] rounded-xl shadow-md hover:bg-[#ffb3ab] transition-all font-medium text-base"
+              className="mt-auto flex items-center gap-2 px-4 py-4 bg-[#ffb3ab]/80 text-[#222] rounded-xl shadow-md hover:bg-[#ffb3ab] transition-all font-medium text-base"
               onClick={onLogout}
             >
               <FiLogOut className="text-lg" /> Cerrar sesión
@@ -189,15 +198,18 @@ function Dashboard({ user, onLogout }) {
           </div>
         </div>
       )}
-      {/* Botón hamburguesa móvil flotante glass */}
+      
+      {/* Botón hamburguesa móvil mejorado */}
       <button 
-        className="fixed top-4 right-4 z-30 md:hidden bg-white/80 border border-[#e0e0e0] rounded-full p-3 shadow-lg backdrop-blur-[6px] hover:bg-[#b8b5ff]/40 transition-all"
+        className="fixed top-4 right-4 z-40 md:hidden bg-white/90 border border-[#e0e0e0] rounded-full p-4 shadow-xl backdrop-blur-[8px] hover:bg-[#b8b5ff]/40 transition-all duration-200 hover:scale-105"
         onClick={openSidebar}
+        aria-label="Abrir menú"
       >
-        <span className="text-2xl text-[#7ed6a7]"><FiHome /></span>
+        <FiMenu className="text-2xl text-[#7ed6a7]" />
       </button>
-      {/* Contenido principal */}
-      <main className="flex-1 flex flex-col items-center p-4 overflow-y-auto md:ml-72">
+      
+      {/* Contenido principal optimizado para mobile */}
+      <main className="flex-1 flex flex-col items-center p-2 sm:p-4 overflow-y-auto md:ml-72 pt-16 md:pt-4">
         <div className="w-full max-w-5xl">
           {renderSection()}
         </div>

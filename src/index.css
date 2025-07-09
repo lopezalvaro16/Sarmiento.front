@@ -190,6 +190,53 @@ body {
     box-shadow: var(--shadow);
     border-bottom: 1px solid var(--border);
   }
+  
+  /* Mejoras específicas para mobile */
+  @media (max-width: 768px) {
+    body {
+      font-size: 16px;
+    }
+    
+    .card, .Card, .shadow-card {
+      padding: 1em;
+      margin: 0.5em 0;
+    }
+    
+    button {
+      padding: 0.75em 1em;
+      font-size: 0.9rem;
+      min-height: 44px; /* Mejora la accesibilidad táctil */
+    }
+    
+    input, select, textarea {
+      padding: 0.75em;
+      font-size: 16px; /* Evita zoom en iOS */
+      min-height: 44px;
+    }
+    
+    /* Mejora la experiencia de scroll en mobile */
+    .overflow-y-auto {
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Optimiza los modales para mobile */
+    [role="dialog"] {
+      margin: 1rem;
+      max-height: calc(100vh - 2rem);
+    }
+    
+    /* Mejora la legibilidad de las tablas en mobile */
+    table {
+      font-size: 0.875rem;
+    }
+    
+    /* Optimiza los botones de acción en mobile */
+    .flex.gap-2 button {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+  
   .dark body {
     background: var(--background);
     color: var(--foreground);
@@ -200,36 +247,38 @@ body {
     box-shadow: var(--shadow);
     border-left: 1px solid var(--sidebar-border);
   }
-  .dark .card, .dark .Card, .dark .shadow-card {
-    background: var(--card);
-    border-radius: var(--radius);
+  .dark .header-blur {
+    background: var(--sidebar);
+    backdrop-filter: blur(18px);
     box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    color: var(--card-foreground);
-    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--sidebar-border);
+  }
+  .dark .card, .dark .Card, .dark .shadow-card {
+    background: #23272b !important;
+    color: #f7f7f7 !important;
+    border: 1px solid #3a3f47;
+  }
+  .dark .card * {
+    color: #f7f7f7 !important;
   }
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-    color: #fff;
+    color: var(--foreground);
   }
   .dark button {
     background: var(--card);
     color: var(--primary);
     border: 1px solid var(--border);
-    box-shadow: var(--shadow);
   }
   .dark button:hover {
-    background: var(--primary);
-    color: var(--primary-foreground);
+    background: var(--secondary);
   }
   .dark button.danger {
     background: var(--destructive);
     color: var(--destructive-foreground);
-    border: none;
   }
   .dark input, .dark select, .dark textarea {
     background: var(--card);
     color: var(--foreground);
     border: 1px solid var(--border);
-    box-shadow: var(--shadow);
   }
 }

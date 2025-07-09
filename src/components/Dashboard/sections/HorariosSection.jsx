@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaLock } from 'react-icons/fa';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 // Cambiar el array HORAS para que vaya de 16 a 23 (inclusive)
@@ -107,11 +108,11 @@ function HorariosSection() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Horarios de Canchas</h2>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Horarios de Canchas</h2>
       
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
-          <label className="text-sm font-medium mb-2 block text-gray-700">Cancha</label>
+          <label className="text-sm font-medium mb-2 block text-gray-700 dark:text-gray-300">Cancha</label>
           <select 
             value={canchaSel} 
             onChange={e => setCanchaSel(e.target.value)}
@@ -125,7 +126,7 @@ function HorariosSection() {
         
         {isMobile && (
           <div className="flex-1">
-            <label className="text-sm font-medium mb-2 block text-gray-700">Día</label>
+            <label className="text-sm font-medium mb-2 block text-gray-700 dark:text-gray-300">Día</label>
             <select 
               value={diaSel} 
               onChange={e => setDiaSel(Number(e.target.value))}
@@ -184,49 +185,43 @@ function HorariosSection() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-900 w-20">Hora</th>
-                  {DIAS.map(dia => (
-                    <th key={dia} className="px-4 py-3 text-center text-sm font-medium text-gray-900">{dia}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {HORAS.map(hora => (
-                  <tr key={hora} className="border-t border-gray-200">
-                    <td className="px-4 py-3 font-medium text-gray-900">{hora}:00</td>
-                    {DIAS.map((_, diaIdx) => {
-                      const reserva = getReserva(diaIdx, hora);
-                      return (
-                        <td
-                          key={diaIdx}
-                          className={`px-4 py-3 text-center text-sm ${
-                            reserva
-                              ? 'bg-red-50 text-red-800 border-red-200'
-                              : 'bg-green-50 text-green-800 border-green-200'
-                          }`}
-                        >
-                          {reserva ? (
-                            <div>
-                              <div className="font-medium">{reserva.socio}</div>
-                              <div className="text-xs">
-                                {reserva.hora_desde.slice(0,5)}-{reserva.hora_hasta.slice(0,5)}
-                              </div>
-                            </div>
-                          ) : (
-                            null
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
+          <Table className="rounded-2xl overflow-hidden w-full bg-white dark:bg-[#23272b]">
+            <TableHeader className="bg-white dark:bg-[#23272b]">
+              <TableRow>
+                <TableHead className="px-4 py-3 text-left text-sm font-medium text-gray-900 dark:text-gray-100 w-20">Hora</TableHead>
+                {DIAS.map((dia, diaIdx) => (
+                  <TableHead key={dia} className="px-4 py-3 text-center text-sm font-medium text-gray-900 dark:text-gray-100">{dia}</TableHead>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {HORAS.map(hora => (
+                <TableRow key={hora}>
+                  <TableCell className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{hora}:00</TableCell>
+                  {DIAS.map((_, diaIdx) => {
+                    const reserva = getReserva(diaIdx, hora);
+                    return (
+                      <TableCell
+                        key={diaIdx}
+                        className={`px-4 py-3 text-center text-sm ${reserva
+                          ? 'bg-red-100 dark:bg-[#3a2323] text-red-700 dark:text-red-200'
+                          : 'bg-green-50 dark:bg-[#2d3a2d] text-green-700 dark:text-green-200'}`}
+                      >
+                        {reserva ? (
+                          <div>
+                            <div className="font-medium">{reserva.socio}</div>
+                            <div className="text-xs">
+                              {reserva.hora_desde.slice(0,5)}-{reserva.hora_hasta.slice(0,5)}
+                            </div>
+                          </div>
+                        ) : null}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           
           <div className="flex gap-4 text-sm">
             <div className="flex items-center gap-2">

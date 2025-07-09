@@ -72,55 +72,55 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
   
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{modo === 'editar' ? 'Editar reserva' : 'Nueva Reserva'}</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">{modo === 'editar' ? 'Editar reserva' : 'Nueva Reserva'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fecha">Fecha*</Label>
-            <Input type="date" id="fecha" name="fecha" value={form.fecha} onChange={handleChange} required />
+            <Label htmlFor="fecha" className="text-sm sm:text-base">Fecha*</Label>
+            <Input type="date" id="fecha" name="fecha" value={form.fecha} onChange={handleChange} required className="text-sm sm:text-base" />
           </div>
           <div className="space-y-2">
-            <Label>Desde*</Label>
+            <Label className="text-sm sm:text-base">Desde*</Label>
             <div className="flex gap-2 items-center">
-              <select value={form.hora_desde.split(':')[0] || ''} onChange={e => setForm(f => ({ ...f, hora_desde: getHoraMinuto(e.target.value, f.hora_desde.split(':')[1] || '00') }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg focus:ring-2 focus:ring-primary/50 transition-all">
+              <select value={form.hora_desde.split(':')[0] || ''} onChange={e => setForm(f => ({ ...f, hora_desde: getHoraMinuto(e.target.value, f.hora_desde.split(':')[1] || '00') }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
                 <option value="">--</option>
                 {HORAS_PERMITIDAS.map(h => <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>)}
               </select>
               <span className="text-xl font-bold text-gray-400">:</span>
-              <select value={form.hora_desde.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_desde: getHoraMinuto(f.hora_desde.split(':')[0] || '16', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg focus:ring-2 focus:ring-primary/50 transition-all">
+              <select value={form.hora_desde.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_desde: getHoraMinuto(f.hora_desde.split(':')[0] || '16', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
                 <option value="">--</option>
                 {MINUTOS_PERMITIDOS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Hasta*</Label>
+            <Label className="text-sm sm:text-base">Hasta*</Label>
             <div className="flex gap-2 items-center">
-              <select value={form.hora_hasta.split(':')[0] || ''} onChange={e => setForm(f => ({ ...f, hora_hasta: getHoraMinuto(e.target.value, f.hora_hasta.split(':')[1] || '00') }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg focus:ring-2 focus:ring-primary/50 transition-all">
+              <select value={form.hora_hasta.split(':')[0] || ''} onChange={e => setForm(f => ({ ...f, hora_hasta: getHoraMinuto(e.target.value, f.hora_hasta.split(':')[1] || '00') }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
                 <option value="">--</option>
                 {HORAS_PERMITIDAS.map(h => <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>)}
               </select>
               <span className="text-xl font-bold text-gray-400">:</span>
-              <select value={form.hora_hasta.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_hasta: getHoraMinuto(f.hora_hasta.split(':')[0] || '16', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg focus:ring-2 focus:ring-primary/50 transition-all">
+              <select value={form.hora_hasta.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_hasta: getHoraMinuto(f.hora_hasta.split(':')[0] || '16', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
                 <option value="">--</option>
                 {MINUTOS_PERMITIDOS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="cancha">Cancha*</Label>
-            <Input type="number" id="cancha" name="cancha" value={form.cancha} onChange={handleChange} min="1" required />
+            <Label htmlFor="cancha" className="text-sm sm:text-base">Cancha*</Label>
+            <Input type="number" id="cancha" name="cancha" value={form.cancha} onChange={handleChange} min="1" required className="text-sm sm:text-base" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="socio">Socio*</Label>
-            <Input type="text" id="socio" name="socio" value={form.socio} onChange={handleChange} required />
+            <Label htmlFor="socio" className="text-sm sm:text-base">Socio*</Label>
+            <Input type="text" id="socio" name="socio" value={form.socio} onChange={handleChange} required className="text-sm sm:text-base" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="estado">Estado</Label>
+            <Label htmlFor="estado" className="text-sm sm:text-base">Estado</Label>
             <Select name="estado" value={form.estado} onValueChange={(value) => setForm({...form, estado: value})}>
-              <SelectTrigger>
+              <SelectTrigger className="text-sm sm:text-base">
                 <SelectValue placeholder="Seleccionar estado" />
               </SelectTrigger>
               <SelectContent>
@@ -131,9 +131,9 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
             </Select>
           </div>
           {error && <div className="text-red-500 text-sm">{error}</div>}
-          <div className="flex gap-2">
-            <Button type="submit" className="flex-1">{modo === 'editar' ? 'Guardar cambios' : 'Guardar'}</Button>
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <div className="flex flex-col sm:flex-row gap-2 pt-2">
+            <Button type="submit" className="flex-1 text-sm sm:text-base">{modo === 'editar' ? 'Guardar cambios' : 'Guardar'}</Button>
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1 text-sm sm:text-base">Cancelar</Button>
           </div>
         </form>
       </DialogContent>
@@ -268,26 +268,27 @@ function ReservasSection({ modalOpen, setModalOpen }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <h2 className="text-2xl font-bold">Reservas de Canchas</h2>
-        <Button onClick={() => handleOpenModal()}>+ Nueva Reserva</Button>
+        <h2 className="text-xl sm:text-2xl font-bold">Reservas de Canchas</h2>
+        <Button onClick={() => handleOpenModal()} className="w-full sm:w-auto">+ Nueva Reserva</Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
         <div className="flex-1">
-          <Label htmlFor="filtroSocio">Filtrar por socio</Label>
+          <Label htmlFor="filtroSocio" className="text-sm sm:text-base">Filtrar por socio</Label>
           <Input
             id="filtroSocio"
             placeholder="Buscar socio..."
             value={filtroSocio}
             onChange={(e) => setFiltroSocio(e.target.value)}
+            className="text-sm sm:text-base"
           />
         </div>
         <div className="flex-1">
-          <Label htmlFor="filtroCancha">Filtrar por cancha</Label>
+          <Label htmlFor="filtroCancha" className="text-sm sm:text-base">Filtrar por cancha</Label>
           <Select value={filtroCancha} onValueChange={setFiltroCancha}>
-            <SelectTrigger>
+            <SelectTrigger className="text-sm sm:text-base">
               <SelectValue placeholder="Todas las canchas" />
             </SelectTrigger>
             <SelectContent>
@@ -306,22 +307,24 @@ function ReservasSection({ modalOpen, setModalOpen }) {
         <div className="text-red-500 text-center py-8">{error}</div>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
             {reservasFiltradas.map(r => (
-              <Card key={r.id}>
-                <CardHeader>
-                  <CardTitle className="text-lg">Cancha {r.cancha}</CardTitle>
-                  <Badge variant={r.estado === 'Confirmada' ? 'default' : r.estado === 'Cancelada' ? 'destructive' : 'secondary'}>
-                    {r.estado}
-                  </Badge>
+              <Card key={r.id} className="hover:shadow-lg transition-shadow dark:bg-[#23272b] dark:text-gray-100">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-gray-100">Cancha {r.cancha}</CardTitle>
+                    <Badge variant={r.estado === 'Confirmada' ? 'default' : r.estado === 'Cancelada' ? 'destructive' : 'secondary'} className="text-xs">
+                      {r.estado}
+                    </Badge>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <div><strong>Fecha:</strong> {formatFecha(r.fecha)}</div>
-                  <div><strong>Horario:</strong> {formatRango(r.hora_desde, r.hora_hasta)}</div>
-                  <div><strong>Socio:</strong> {r.socio}</div>
-                  <div className="flex gap-2 pt-2">
-                    <Button size="sm" variant="outline" onClick={() => handleOpenModal(r)}>Editar</Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(r.id)}>Eliminar</Button>
+                <CardContent className="space-y-2 pt-0">
+                  <div className="text-sm sm:text-base font-bold text-gray-800 dark:text-gray-100"><strong>Fecha:</strong> <span className="font-normal">{formatFecha(r.fecha)}</span></div>
+                  <div className="text-sm sm:text-base font-bold text-gray-800 dark:text-gray-100"><strong>Horario:</strong> <span className="font-normal">{formatRango(r.hora_desde, r.hora_hasta)}</span></div>
+                  <div className="text-sm sm:text-base font-bold text-gray-800 dark:text-gray-100"><strong>Socio:</strong> <span className="font-normal">{r.socio}</span></div>
+                  <div className="flex gap-2 pt-3">
+                    <Button size="sm" variant="outline" onClick={() => handleOpenModal(r)} className="flex-1 text-xs sm:text-sm dark:border-gray-400 dark:text-gray-100">Editar</Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(r.id)} className="flex-1 text-xs sm:text-sm dark:bg-[#ffb3ab] dark:text-[#23272b]">Eliminar</Button>
                   </div>
                 </CardContent>
               </Card>

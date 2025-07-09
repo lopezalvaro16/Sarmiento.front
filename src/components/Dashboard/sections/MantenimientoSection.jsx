@@ -141,20 +141,18 @@ function MantenimientoSection() {
         <>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tareas.map(t => (
-              <Card key={t.id}>
+              <Card key={t.id} className="dark:bg-[#23272b] dark:text-gray-100">
                 <CardHeader>
-                  <CardTitle className="text-lg">Cancha {t.cancha}</CardTitle>
+                  <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Cancha {t.cancha}</CardTitle>
                   <Badge variant={
                     t.estado === 'finalizada' ? 'default' : 
                     t.estado === 'en_curso' ? 'secondary' : 'outline'
-                  }>
-                    {t.estado}
-                  </Badge>
+                  } className="dark:bg-[#7ed6a7] dark:text-[#23272b]">{t.estado}</Badge>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <div><strong>Fecha:</strong> {t.fecha.slice(0,10)}</div>
-                  <div><strong>Descripción:</strong> {t.descripcion}</div>
-                  <div><strong>Responsable:</strong> {t.responsable || '-'}</div>
+                  <div className="text-gray-800 dark:text-gray-100"><strong>Fecha:</strong> {t.fecha.slice(0,10)}</div>
+                  <div className="text-gray-800 dark:text-gray-100"><strong>Descripción:</strong> {t.descripcion}</div>
+                  <div className="text-gray-800 dark:text-gray-100"><strong>Responsable:</strong> {t.responsable || '-'}</div>
                   {t.estado !== 'finalizada' && (
                     <div className="flex gap-2 pt-2">
                       {t.estado !== 'en_curso' && (
