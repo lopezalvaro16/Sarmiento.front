@@ -240,7 +240,7 @@ function MantenimientoSection() {
       )}
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-w-[95vw] max-h-[90vh] overflow-y-auto mx-auto my-auto">
           <DialogHeader>
             <DialogTitle>Agregar tarea de mantenimiento</DialogTitle>
             <DialogDescription>

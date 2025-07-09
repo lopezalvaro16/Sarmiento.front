@@ -72,7 +72,7 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
   
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md max-w-[95vw] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-w-[95vw] max-h-[90vh] overflow-y-auto mx-auto my-auto">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">{modo === 'editar' ? 'Editar reserva' : 'Nueva Reserva'}</DialogTitle>
         </DialogHeader>
