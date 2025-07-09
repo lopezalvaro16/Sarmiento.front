@@ -10,6 +10,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import Toast from './Toast';
 
+// Definir el rango de horarios permitidos
+const HORAS_PERMITIDAS = Array.from({ length: 9 }, (_, i) => 16 + i); // 16 a 24
+const MINUTOS_PERMITIDOS = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0')); // 00, 05, ..., 55
+
 function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reservas }) {
   const [form, setForm] = useState(initialData || {
     fecha: '',
@@ -33,6 +37,9 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
     setForm({ ...form, [e.target.name]: e.target.value });
   };
   
+  // Helper para armar el valor de hora:minuto
+  const getHoraMinuto = (hora, minuto) => hora && minuto ? `${hora}:${minuto}` : '';
+
   const handleSubmit = e => {
     e.preventDefault();
     if (!form.fecha || !form.hora_desde || !form.hora_hasta || !form.cancha || !form.socio) {
@@ -75,12 +82,32 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
             <Input type="date" id="fecha" name="fecha" value={form.fecha} onChange={handleChange} required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="hora_desde">Desde*</Label>
-            <Input type="time" id="hora_desde" name="hora_desde" value={form.hora_desde} onChange={handleChange} required />
+            <Label>Desde*</Label>
+            <div className="flex gap-2 items-center">
+              <select value={form.hora_desde.split(':')[0] || ''} onChange={e => setForm(f => ({ ...f, hora_desde: getHoraMinuto(e.target.value, f.hora_desde.split(':')[1] || '00') }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg focus:ring-2 focus:ring-primary/50 transition-all">
+                <option value="">--</option>
+                {HORAS_PERMITIDAS.map(h => <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>)}
+              </select>
+              <span className="text-xl font-bold text-gray-400">:</span>
+              <select value={form.hora_desde.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_desde: getHoraMinuto(f.hora_desde.split(':')[0] || '16', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg focus:ring-2 focus:ring-primary/50 transition-all">
+                <option value="">--</option>
+                {MINUTOS_PERMITIDOS.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="hora_hasta">Hasta*</Label>
-            <Input type="time" id="hora_hasta" name="hora_hasta" value={form.hora_hasta} onChange={handleChange} required />
+            <Label>Hasta*</Label>
+            <div className="flex gap-2 items-center">
+              <select value={form.hora_hasta.split(':')[0] || ''} onChange={e => setForm(f => ({ ...f, hora_hasta: getHoraMinuto(e.target.value, f.hora_hasta.split(':')[1] || '00') }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg focus:ring-2 focus:ring-primary/50 transition-all">
+                <option value="">--</option>
+                {HORAS_PERMITIDAS.map(h => <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>)}
+              </select>
+              <span className="text-xl font-bold text-gray-400">:</span>
+              <select value={form.hora_hasta.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_hasta: getHoraMinuto(f.hora_hasta.split(':')[0] || '16', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-lg focus:ring-2 focus:ring-primary/50 transition-all">
+                <option value="">--</option>
+                {MINUTOS_PERMITIDOS.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="cancha">Cancha*</Label>

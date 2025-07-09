@@ -12,7 +12,7 @@ import StockSection from './sections/StockSection';
 import ComprasSection from './sections/ComprasSection';
 import VentasSection from './sections/VentasSection';
 import InicioSection from './sections/InicioSection';
-import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun } from 'react-icons/fi';
 
 function Dashboard({ user, onLogout }) {
   // Simulación de usuario si no se pasa por props
@@ -47,6 +47,22 @@ function Dashboard({ user, onLogout }) {
   const sidebarTimeout = useRef();
   const [modalOpen, setModalOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' || (window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+    return false;
+  });
+
+  React.useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
 
   // Abrir sidebar con animación
   const openSidebar = () => {
@@ -64,7 +80,7 @@ function Dashboard({ user, onLogout }) {
 
   // Renderiza la sección correspondiente
   const renderSection = () => {
-    if (selectedSection === 'inicio') return <InicioSection user={admin} />;
+    if (selectedSection === 'inicio') return <InicioSection user={admin} onNuevaReserva={() => { setSelectedSection('reservas'); setModalOpen(true); }} onIrHorarios={() => setSelectedSection('horarios')} onIrMantenimiento={() => setSelectedSection('mantenimiento')} />;
     if (admin.role === 'canchas') {
       if (selectedSection === 'reservas') return <ReservasSection modalOpen={modalOpen} setModalOpen={setModalOpen} />;
       if (selectedSection === 'horarios') return <HorariosSection />;
@@ -94,14 +110,22 @@ function Dashboard({ user, onLogout }) {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-[#f7f7f7] to-[#e9ecef]">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#f7f7f7] to-[#e9ecef] dark:from-[#181c1f] dark:to-[#23272b]">
       {/* Sidebar para desktop */}
       <aside className="hidden md:flex flex-col w-72 sidebar-blur p-6 gap-6 shadow-xl rounded-r-3xl mt-4 mb-4 ml-2 fixed top-0 left-0 z-20"
         style={{height: 'calc(100vh - 2rem)'}}>
         <div className="flex flex-col items-center gap-3 mb-8">
           <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-16 h-16 flex items-center justify-center text-3xl font-bold shadow-lg">S</div>
-          <span className="font-semibold text-gray-900 text-lg">{admin.username}</span>
-          <span className="text-xs text-gray-500">{admin.role}</span>
+          <span className="font-semibold text-gray-900 dark:text-gray-100 text-lg">{admin.username}</span>
+          <span className="text-xs text-gray-500 dark:text-gray-300">{admin.role}</span>
+          <button
+            className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#23272b] text-gray-700 dark:text-gray-200 shadow hover:bg-gray-200 dark:hover:bg-[#2d3237] transition-all"
+            onClick={() => setDarkMode(d => !d)}
+            title={darkMode ? 'Modo claro' : 'Modo oscuro'}
+          >
+            {darkMode ? <FiSun className="text-xl" /> : <FiMoon className="text-xl" />}
+            {darkMode ? 'Claro' : 'Oscuro'}
+          </button>
         </div>
         <nav className="flex flex-col gap-3 w-full flex-1">
           {(menuOptions[admin.role] || []).map(option => (

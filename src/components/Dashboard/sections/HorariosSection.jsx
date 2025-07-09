@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { FaLock } from 'react-icons/fa';
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-const HORAS = Array.from({ length: 16 }, (_, i) => 8 + i); // 8 a 23
+// Cambiar el array HORAS para que vaya de 16 a 23 (inclusive)
+const HORAS = Array.from({ length: 9 }, (_, i) => 16 + i); // 16 a 24
 
 function getDiaHoyIdx() {
   const jsDay = new Date().getDay();

@@ -64,7 +64,7 @@ function VentasSection() {
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Ventas del Buffet</h2>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" onClick={() => setModalOpen(true)}>+ Registrar venta</button>
-      </div>
+          </div>
 
       {loading ? (
         <div className="text-center py-8">Cargando...</div>
@@ -89,26 +89,26 @@ function VentasSection() {
           <div className="hidden lg:block">
             <table className="w-full bg-white rounded-lg shadow-md overflow-hidden">
               <thead className="bg-gray-50">
-                <tr>
+              <tr>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Producto</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Unidades</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Fecha</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Responsable</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Observación</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ventas.map(v => (
+              </tr>
+            </thead>
+            <tbody>
+              {ventas.map(v => (
                   <tr key={v.id} className="border-t border-gray-200">
                     <td className="px-4 py-3">{v.producto_nombre}</td>
                     <td className="px-4 py-3">{v.unidad}</td>
                     <td className="px-4 py-3">{new Date(v.fecha).toLocaleString('es-AR')}</td>
                     <td className="px-4 py-3">{v.responsable || '-'}</td>
                     <td className="px-4 py-3">{v.observacion || '-'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           </div>
         </>
       )}
