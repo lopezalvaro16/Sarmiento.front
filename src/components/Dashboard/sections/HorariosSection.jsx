@@ -44,24 +44,34 @@ function HorariosSection() {
   const reservasCancha = reservas.filter(r => String(r.cancha) === canchaSel);
 
   function getReserva(diaIdx, hora) {
+    // Calcular la fecha correspondiente al día seleccionado
+    const hoy = new Date();
+    const diaActual = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
+    const diff = diaIdx - diaActual;
+    const fechaDia = new Date(hoy);
+    fechaDia.setDate(hoy.getDate() + diff);
+    const fechaStr = fechaDia.toISOString().slice(0, 10);
     return reservasCancha.find(r => {
-      const fecha = new Date(r.fecha);
-      let diaReserva = fecha.getDay();
-      diaReserva = diaReserva === 0 ? 6 : diaReserva - 1;
+      // Comparar el string de la fecha directamente
+      if (r.fecha.slice(0, 10) !== fechaStr) return false;
       const desdeMin = parseInt(r.hora_desde.slice(0,2), 10) * 60 + parseInt(r.hora_desde.slice(3,5), 10);
       const hastaMin = parseInt(r.hora_hasta.slice(0,2), 10) * 60 + parseInt(r.hora_hasta.slice(3,5), 10);
       const franjaIni = hora * 60;
       const franjaFin = (hora + 1) * 60;
-      return diaReserva === diaIdx && (franjaIni < hastaMin) && (franjaFin > desdeMin);
+      return (franjaIni < hastaMin) && (franjaFin > desdeMin);
     });
   }
 
   function getBloquesDia(cancha, diaIdx) {
+    // Calcular la fecha correspondiente al día seleccionado
+    const hoy = new Date();
+    const diaActual = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
+    const diff = diaIdx - diaActual;
+    const fechaDia = new Date(hoy);
+    fechaDia.setDate(hoy.getDate() + diff);
+    const fechaStr = fechaDia.toISOString().slice(0, 10);
     const reservasDia = reservas.filter(r => {
-      const fecha = new Date(r.fecha);
-      let diaReserva = fecha.getDay();
-      diaReserva = diaReserva === 0 ? 6 : diaReserva - 1;
-      return String(r.cancha) === String(cancha) && diaReserva === diaIdx;
+      return String(r.cancha) === String(cancha) && r.fecha.slice(0, 10) === fechaStr;
     }).sort((a, b) => a.hora_desde.localeCompare(b.hora_desde));
     
     const bloques = [];
@@ -152,7 +162,7 @@ function HorariosSection() {
                     <div className="text-sm">
                       {bloque.tipo === 'ocupado'
                         ? `Ocupado - ${bloque.socio} (${bloque.reserva.hora_desde.slice(0,5)}-${bloque.reserva.hora_hasta.slice(0,5)})`
-                        : 'Libre'}
+                        : null}
                     </div>
                   </div>
                 </div>
@@ -206,7 +216,7 @@ function HorariosSection() {
                               </div>
                             </div>
                           ) : (
-                            <span className="text-gray-500">Libre</span>
+                            null
                           )}
                         </td>
                       );

@@ -75,9 +75,9 @@ function StockSection({ modalOpen, setModalOpen }) {
       setForm({ nombre: '', cantidad: '', unidad: '', precio: '', proveedor: '' });
       setEditId(null);
       setModalOpen(false);
-      toast({ description: editId ? 'Producto editado con éxito' : 'Producto agregado con éxito' });
+      toast.success(editId ? 'Producto editado con éxito' : 'Producto agregado con éxito');
     } catch (err) {
-      toast({ description: 'Error al guardar producto', variant: 'destructive' });
+      toast.error('Error al guardar producto');
     }
     setLoadingBtn(false);
   };
@@ -106,9 +106,9 @@ function StockSection({ modalOpen, setModalOpen }) {
     try {
       const res = await fetch(`${apiUrl}/productos_buffet/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar producto');
-      toast({ description: 'Producto dado de baja con éxito' });
+      toast.success('Producto dado de baja con éxito');
     } catch (err) {
-      toast({ description: 'Error al eliminar producto', variant: 'destructive' });
+      toast.error('Error al eliminar producto');
     }
     setLoadingBtn(false);
   };

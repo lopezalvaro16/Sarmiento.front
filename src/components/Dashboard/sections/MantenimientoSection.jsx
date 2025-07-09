@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -70,9 +70,9 @@ function MantenimientoSection() {
       setForm({ fecha: '', descripcion: '', responsable: '', cancha: '' });
       setTareas(prev => [nueva, ...prev]);
       setError('');
-      toast({ description: 'Tarea creada con éxito' });
+      toast.success('Tarea creada con éxito');
     } catch (err) {
-      toast({ description: 'Error al crear tarea', variant: 'destructive' });
+      toast.error('Error al crear tarea');
     }
     setLoadingBtn(false);
   };
@@ -89,9 +89,9 @@ function MantenimientoSection() {
       const actualizada = await res.json();
       setTareas(prev => prev.map(t => t.id === id ? actualizada : t));
       setError('');
-      toast({ description: 'Estado actualizado con éxito' });
+      toast.success('Estado actualizado con éxito');
     } catch (err) {
-      toast({ description: 'Error al cambiar estado', variant: 'destructive' });
+      toast.error('Error al cambiar estado');
     }
     setLoadingEstadoId(null);
   };
@@ -136,7 +136,7 @@ function MantenimientoSection() {
       {loading ? (
         <div className="text-center py-8">Cargando...</div>
       ) : error ? (
-        <div className="text-red-500 text-center py-8">{error}</div>
+        <div className="text-red-500 text-center py-8">{typeof error === 'string' ? error : 'Ocurrió un error inesperado.'}</div>
       ) : (
         <>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -245,6 +245,9 @@ function MantenimientoSection() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Agregar tarea de mantenimiento</DialogTitle>
+            <DialogDescription>
+              Completá los datos para registrar una nueva tarea de mantenimiento.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={e => { handleSubmit(e); setModalOpen(false); }} className="space-y-4">
             <div className="space-y-2">

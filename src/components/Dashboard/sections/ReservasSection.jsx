@@ -348,7 +348,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
         reservas={reservas}
       />
 
-      <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: '', type: 'info' })} />
+      <Toast message={typeof toast.message === 'string' ? toast.message : ''} type={toast.type} onClose={() => setToast({ message: '', type: 'info' })} />
     </div>
   );
 }
