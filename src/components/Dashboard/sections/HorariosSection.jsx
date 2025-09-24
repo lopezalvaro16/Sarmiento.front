@@ -3,8 +3,8 @@ import { FaLock } from 'react-icons/fa';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-// Cambiar el array HORAS para que vaya de 16 a 23 (inclusive)
-const HORAS = Array.from({ length: 9 }, (_, i) => 16 + i); // 16 a 24
+// Horas del día 0..23
+const HORAS = Array.from({ length: 24 }, (_, i) => i);
 
 function getDiaHoyIdx() {
   const jsDay = new Date().getDay();
@@ -16,10 +16,27 @@ function HorariosSection() {
   const [canchas, setCanchas] = useState([]);
   const [canchaSel, setCanchaSel] = useState('');
   const [diaSel, setDiaSel] = useState(getDiaHoyIdx());
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0,10));
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 700);
   const [loading, setLoading] = useState(true);
 
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  // Helpers de fecha sin sesgo por zona horaria
+  function parseLocalDateFromInput(yyyyMmDd) {
+    const [y, m, d] = yyyyMmDd.split('-').map(Number);
+    return new Date(y, (m || 1) - 1, d || 1);
+  }
+  function formatISODateLocal(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  function formatDMY(yyyyMmDd) {
+    const [y, m, d] = yyyyMmDd.split('-');
+    return `${d}/${m}/${y}`;
+  }
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 700);
@@ -45,14 +62,7 @@ function HorariosSection() {
 
   const reservasCancha = reservas.filter(r => String(r.cancha) === canchaSel);
 
-  function getReserva(diaIdx, hora) {
-    // Calcular la fecha correspondiente al día seleccionado
-    const hoy = new Date();
-    const diaActual = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
-    const diff = diaIdx - diaActual;
-    const fechaDia = new Date(hoy);
-    fechaDia.setDate(hoy.getDate() + diff);
-    const fechaStr = fechaDia.toISOString().slice(0, 10);
+  function getReservaPorFecha(fechaStr, hora) {
     return reservasCancha.find(r => {
       // Comparar el string de la fecha directamente
       if (r.fecha.slice(0, 10) !== fechaStr) return false;
@@ -64,21 +74,14 @@ function HorariosSection() {
     });
   }
 
-  function getBloquesDia(cancha, diaIdx) {
-    // Calcular la fecha correspondiente al día seleccionado
-    const hoy = new Date();
-    const diaActual = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
-    const diff = diaIdx - diaActual;
-    const fechaDia = new Date(hoy);
-    fechaDia.setDate(hoy.getDate() + diff);
-    const fechaStr = fechaDia.toISOString().slice(0, 10);
+  function getBloquesFecha(cancha, fechaStr) {
     const reservasDia = reservas.filter(r => {
       return String(r.cancha) === String(cancha) && r.fecha.slice(0, 10) === fechaStr;
     }).sort((a, b) => a.hora_desde.localeCompare(b.hora_desde));
     
     const bloques = [];
-    let horaActual = 8 * 60;
-    const finDia = 23 * 60;
+    let horaActual = 0;
+    const finDia = 24 * 60;
     
     reservasDia.forEach(r => {
       const desde = parseInt(r.hora_desde.slice(0,2), 10) * 60 + parseInt(r.hora_desde.slice(3,5), 10);
@@ -108,44 +111,39 @@ function HorariosSection() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Horarios de Canchas</h2>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Horarios de Establecimientos</h2>
       
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
-          <label className="text-sm font-medium mb-2 block text-gray-700 dark:text-gray-300">Cancha</label>
+          <label className="text-sm font-medium mb-2 block text-gray-700 dark:text-gray-300">Establecimiento</label>
           <select 
             value={canchaSel} 
             onChange={e => setCanchaSel(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {canchas.map(c => (
-              <option key={c} value={c}>Cancha {c}</option>
+              <option key={c} value={c}>{c}</option>
             ))}
           </select>
         </div>
-        
-        {isMobile && (
-          <div className="flex-1">
-            <label className="text-sm font-medium mb-2 block text-gray-700 dark:text-gray-300">Día</label>
-            <select 
-              value={diaSel} 
-              onChange={e => setDiaSel(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {DIAS.map((d, i) => (
-                <option key={d} value={i}>{d}</option>
-              ))}
-            </select>
-          </div>
-        )}
+
+        <div className="flex-1">
+          <label className="text-sm font-medium mb-2 block text-gray-700 dark:text-gray-300">Fecha</label>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={e => setSelectedDate(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
       </div>
 
-      {isMobile ? (
+      {true ? (
         <div className="space-y-4">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{DIAS[diaSel]} - Cancha {canchaSel}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{formatDMY(selectedDate)} - {canchaSel}</h3>
             <div className="space-y-2">
-              {getBloquesDia(canchaSel, diaSel).map((bloque, idx) => (
+              {getBloquesFecha(canchaSel, selectedDate).map((bloque, idx) => (
                 <div
                   key={idx}
                   className={`p-3 rounded-lg border transition-all duration-200 flex items-center gap-2 ${
@@ -183,58 +181,7 @@ function HorariosSection() {
             </div>
           </div>
         </div>
-      ) : (
-        <div className="space-y-4">
-          <Table className="rounded-2xl overflow-hidden w-full bg-white dark:bg-[#23272b]">
-            <TableHeader className="bg-white dark:bg-[#23272b]">
-              <TableRow>
-                <TableHead className="px-4 py-3 text-left text-sm font-medium text-gray-900 dark:text-gray-100 w-20">Hora</TableHead>
-                {DIAS.map((dia, diaIdx) => (
-                  <TableHead key={dia} className="px-4 py-3 text-center text-sm font-medium text-gray-900 dark:text-gray-100">{dia}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {HORAS.map(hora => (
-                <TableRow key={hora}>
-                  <TableCell className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{hora}:00</TableCell>
-                  {DIAS.map((_, diaIdx) => {
-                    const reserva = getReserva(diaIdx, hora);
-                    return (
-                      <TableCell
-                        key={diaIdx}
-                        className={`px-4 py-3 text-center text-sm ${reserva
-                          ? 'bg-red-100 dark:bg-[#3a2323] text-red-700 dark:text-red-200'
-                          : 'bg-green-50 dark:bg-[#2d3a2d] text-green-700 dark:text-green-200'}`}
-                      >
-                        {reserva ? (
-                          <div>
-                            <div className="font-medium">{reserva.socio}</div>
-                            <div className="text-xs">
-                              {reserva.hora_desde.slice(0,5)}-{reserva.hora_hasta.slice(0,5)}
-                            </div>
-                          </div>
-                        ) : null}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          
-          <div className="flex gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-200 border border-green-300 rounded"></div>
-              Libre
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-200 border border-red-300 rounded"></div>
-              Ocupado
-            </div>
-          </div>
-        </div>
-      )}
+      ) : null}
     </div>
   );
 }

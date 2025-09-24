@@ -10,8 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import Toast from './Toast';
 
-// Definir el rango de horarios permitidos
-const HORAS_PERMITIDAS = Array.from({ length: 9 }, (_, i) => 16 + i); // 16 a 24
+// Definir el rango de horarios permitidos (0 a 23)
+const HORAS_PERMITIDAS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTOS_PERMITIDOS = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0')); // 00, 05, ..., 55
 
 function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reservas }) {
@@ -63,7 +63,7 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
       (modo !== 'editar' || r.id !== initialData?.id)
     );
     if (existe) {
-      setError('Ya existe una reserva superpuesta para esa cancha, fecha y horario.');
+      setError('Ya existe una reserva superpuesta para ese establecimiento, fecha y horario.');
       return;
     }
     setError('');
@@ -89,7 +89,7 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
                 {HORAS_PERMITIDAS.map(h => <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>)}
               </select>
               <span className="text-xl font-bold text-gray-400">:</span>
-              <select value={form.hora_desde.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_desde: getHoraMinuto(f.hora_desde.split(':')[0] || '16', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
+              <select value={form.hora_desde.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_desde: getHoraMinuto(f.hora_desde.split(':')[0] || '00', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
                 <option value="">--</option>
                 {MINUTOS_PERMITIDOS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
@@ -103,15 +103,15 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
                 {HORAS_PERMITIDAS.map(h => <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>)}
               </select>
               <span className="text-xl font-bold text-gray-400">:</span>
-              <select value={form.hora_hasta.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_hasta: getHoraMinuto(f.hora_hasta.split(':')[0] || '16', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
+              <select value={form.hora_hasta.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_hasta: getHoraMinuto(f.hora_hasta.split(':')[0] || '00', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
                 <option value="">--</option>
                 {MINUTOS_PERMITIDOS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="cancha" className="text-sm sm:text-base">Cancha*</Label>
-            <Input type="number" id="cancha" name="cancha" value={form.cancha} onChange={handleChange} min="1" required className="text-sm sm:text-base" />
+            <Label htmlFor="cancha" className="text-sm sm:text-base">Establecimiento*</Label>
+            <Input type="text" id="cancha" name="cancha" placeholder="Ej: Salón principal, Cancha 1, Quincho" value={form.cancha} onChange={handleChange} required className="text-sm sm:text-base" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="socio" className="text-sm sm:text-base">Socio*</Label>
@@ -270,7 +270,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <h2 className="text-xl sm:text-2xl font-bold">Reservas de Canchas</h2>
+        <h2 className="text-xl sm:text-2xl font-bold">Reservas de Establecimientos</h2>
         <Button onClick={() => handleOpenModal()} className="w-full sm:w-auto">+ Nueva Reserva</Button>
       </div>
 
@@ -286,15 +286,15 @@ function ReservasSection({ modalOpen, setModalOpen }) {
           />
         </div>
         <div className="flex-1">
-          <Label htmlFor="filtroCancha" className="text-sm sm:text-base">Filtrar por cancha</Label>
+          <Label htmlFor="filtroCancha" className="text-sm sm:text-base">Filtrar por establecimiento</Label>
           <Select value={filtroCancha} onValueChange={setFiltroCancha}>
             <SelectTrigger className="text-sm sm:text-base">
-              <SelectValue placeholder="Todas las canchas" />
+              <SelectValue placeholder="Todos los establecimientos" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="todas">Todas las canchas</SelectItem>
+              <SelectItem value="todas">Todos los establecimientos</SelectItem>
               {canchasUnicas.map(c => (
-                <SelectItem key={c} value={c}>Cancha {c}</SelectItem>
+                <SelectItem key={c} value={c}>{c}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -312,7 +312,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
               <Card key={r.id} className="hover:shadow-lg transition-shadow dark:bg-[#23272b] dark:text-gray-100">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-gray-100">Cancha {r.cancha}</CardTitle>
+                    <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-gray-100">{r.cancha}</CardTitle>
                     <Badge variant={r.estado === 'Confirmada' ? 'default' : r.estado === 'Cancelada' ? 'destructive' : 'secondary'} className="text-xs">
                       {r.estado}
                     </Badge>
@@ -336,7 +336,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Fecha</TableHead>
-                  <TableHead>Cancha</TableHead>
+                  <TableHead>Establecimiento</TableHead>
                   <TableHead>Horario</TableHead>
                   <TableHead>Socio</TableHead>
                   <TableHead>Estado</TableHead>
@@ -347,7 +347,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
                 {reservasFiltradas.map(r => (
                   <TableRow key={r.id}>
                     <TableCell>{formatFecha(r.fecha)}</TableCell>
-                    <TableCell>Cancha {r.cancha}</TableCell>
+                    <TableCell>{r.cancha}</TableCell>
                     <TableCell>{formatRango(r.hora_desde, r.hora_hasta)}</TableCell>
                     <TableCell>{r.socio}</TableCell>
                     <TableCell>
