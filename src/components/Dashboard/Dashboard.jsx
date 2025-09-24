@@ -12,7 +12,7 @@ import StockSection from './sections/StockSection';
 import ComprasSection from './sections/ComprasSection';
 import VentasSection from './sections/VentasSection';
 import InicioSection from './sections/InicioSection';
-import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX } from 'react-icons/fi';
 
 function Dashboard({ user, onLogout }) {
   // Simulación de usuario si no se pasa por props
@@ -161,6 +161,14 @@ function Dashboard({ user, onLogout }) {
             className={`fixed right-0 top-0 h-full w-80 sidebar-blur p-6 flex flex-col gap-6 shadow-xl rounded-l-3xl mt-2 mb-2 mr-2 transform transition-transform duration-300 ease-in-out
               ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
           >
+            {/* Botón de cerrar visible en móvil */}
+            <button
+              onClick={closeSidebar}
+              aria-label="Cerrar menú"
+              className="absolute top-3 right-3 rounded-full p-2 bg-white/90 dark:bg-[#23272b]/90 border border-[#e0e0e0] dark:border-[#3a3f47] shadow hover:bg-[#f0f0f0] dark:hover:bg-[#2d3237] transition"
+            >
+              <FiX className="text-xl text-gray-700 dark:text-gray-200" />
+            </button>
             <div className="flex flex-col items-center gap-3 mb-8">
               <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-16 h-16 flex items-center justify-center text-3xl font-bold shadow-lg">S</div>
               <span className="font-semibold text-gray-900 dark:text-gray-100 text-lg">{admin.username}</span>
