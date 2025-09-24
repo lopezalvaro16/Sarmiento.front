@@ -3,11 +3,11 @@ import React from 'react';
 function CanchasSection() {
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Gestión de Canchas</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Gestión de Lugares</h2>
       <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Bienvenido al módulo de Canchas</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Bienvenido al módulo de Lugares</h3>
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
-          Aquí puedes administrar reservas, horarios y mantenimiento de las canchas.
+          Aquí puedes administrar reservas, horarios y mantenimiento de los lugares.
           Usa el menú lateral para navegar entre las diferentes secciones.
         </p>
       </div>

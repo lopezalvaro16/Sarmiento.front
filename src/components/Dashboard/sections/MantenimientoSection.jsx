@@ -99,7 +99,7 @@ function MantenimientoSection() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <h2 className="text-2xl font-bold">Mantenimiento de Canchas</h2>
+        <h2 className="text-2xl font-bold">Mantenimiento de Lugares</h2>
         <Button onClick={() => setModalOpen(true)}>+ Agregar tarea</Button>
       </div>
 
@@ -118,15 +118,15 @@ function MantenimientoSection() {
           </Select>
         </div>
         <div className="flex-1">
-          <Label htmlFor="filtroCancha">Cancha</Label>
+          <Label htmlFor="filtroCancha">Lugar</Label>
           <Select value={filtroCancha} onValueChange={setFiltroCancha}>
             <SelectTrigger>
-              <SelectValue placeholder="Todas las canchas" />
+              <SelectValue placeholder="Todos los lugares" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="todas">Todas las canchas</SelectItem>
+              <SelectItem value="todas">Todos los lugares</SelectItem>
               {canchas.map(c => (
-                <SelectItem key={c} value={c}>Cancha {c}</SelectItem>
+                <SelectItem key={c} value={c}>Lugar {c}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -143,7 +143,7 @@ function MantenimientoSection() {
             {tareas.map(t => (
               <Card key={t.id} className="dark:bg-[#23272b] dark:text-gray-100">
                 <CardHeader>
-                  <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Cancha {t.cancha}</CardTitle>
+                  <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Lugar {t.cancha}</CardTitle>
                   <Badge variant={
                     t.estado === 'finalizada' ? 'default' : 
                     t.estado === 'en_curso' ? 'secondary' : 'outline'
@@ -188,7 +188,7 @@ function MantenimientoSection() {
                   <TableHead>Descripción</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Responsable</TableHead>
-                  <TableHead>Cancha</TableHead>
+                  <TableHead>Lugar</TableHead>
                   <TableHead>Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -283,14 +283,14 @@ function MantenimientoSection() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="cancha">Cancha</Label>
+              <Label htmlFor="cancha">Lugar</Label>
               <Input 
                 id="cancha" 
                 type="number" 
                 name="cancha" 
                 value={form.cancha} 
                 onChange={handleChange} 
-                placeholder="Cancha*" 
+                placeholder="Lugar*" 
                 min="1" 
                 required 
               />

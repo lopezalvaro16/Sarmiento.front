@@ -31,7 +31,7 @@ function InicioSection({ user, onNuevaReserva, onIrHorarios, onIrMantenimiento }
   // Próximas reservas (las siguientes 3)
   const proximas = reservasHoy.slice(0, 3);
 
-  // Canchas ocupadas/libres ahora mismo
+  // Lugares ocupados/libres ahora mismo
   const canchasUnicas = Array.from(new Set(reservas.map(r => String(r.cancha))));
   const ahora = new Date();
   const horaAhora = ahora.toTimeString().slice(0,5);
@@ -50,8 +50,8 @@ function InicioSection({ user, onNuevaReserva, onIrHorarios, onIrMantenimiento }
         </div>
         <div className="bg-white dark:bg-[#23272b] rounded-xl shadow p-4 sm:p-6 flex flex-col items-center">
           <div className="text-xl sm:text-2xl font-bold text-green-600 mb-2">{libresAhora}</div>
-          <div className="text-sm sm:text-base text-gray-700 dark:text-gray-200 text-center">Canchas libres ahora</div>
-          <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Ocupadas: {ocupadasAhora.length}</div>
+          <div className="text-sm sm:text-base text-gray-700 dark:text-gray-200 text-center">Lugares libres ahora</div>
+          <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Ocupados: {ocupadasAhora.length}</div>
         </div>
       </div>
 
@@ -70,7 +70,7 @@ function InicioSection({ user, onNuevaReserva, onIrHorarios, onIrMantenimiento }
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full">
                   <span className="font-medium text-gray-800 dark:text-gray-100 text-sm sm:text-base">{r.hora_desde} - {r.hora_hasta}</span>
                   <div className="flex gap-2 sm:gap-4 text-xs sm:text-sm">
-                    <span className="text-gray-600 dark:text-gray-300">Cancha {r.cancha}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Lugar {r.cancha}</span>
                     <span className="text-gray-500 dark:text-gray-400">{r.socio}</span>
                   </div>
                 </div>
