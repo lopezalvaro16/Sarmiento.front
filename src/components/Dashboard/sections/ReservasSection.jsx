@@ -84,31 +84,29 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
           <div className="space-y-2">
             <Label className="text-sm sm:text-base">Desde*</Label>
             <div className="flex gap-2 items-center">
-              <select value={form.hora_desde.split(':')[0] || ''} onChange={e => setForm(f => ({ ...f, hora_desde: getHoraMinuto(e.target.value, f.hora_desde.split(':')[1] || '00') }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
-                <option value="">--</option>
-                {HORAS_PERMITIDAS.map(h => <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>)}
-              </select>
-              <span className="text-xl font-bold text-gray-400">:</span>
-              <select value={form.hora_desde.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_desde: getHoraMinuto(f.hora_desde.split(':')[0] || '00', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
-                <option value="">--</option>
-                {MINUTOS_PERMITIDOS.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
+              <Input
+                type="time"
+                step="300"
+                className="flex-1 text-base sm:text-lg"
+                value={form.hora_desde}
+                onChange={e => setForm(f => ({ ...f, hora_desde: e.target.value }))}
+                required
+              />
             </div>
           </div>
           <div className="space-y-2">
-            <Label className="text-sm sm:text-base">Hasta*</Label>
-            <div className="flex gap-2 items-center">
-              <select value={form.hora_hasta.split(':')[0] || ''} onChange={e => setForm(f => ({ ...f, hora_hasta: getHoraMinuto(e.target.value, f.hora_hasta.split(':')[1] || '00') }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
-                <option value="">--</option>
-                {HORAS_PERMITIDAS.map(h => <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>)}
-              </select>
-              <span className="text-xl font-bold text-gray-400">:</span>
-              <select value={form.hora_hasta.split(':')[1] || ''} onChange={e => setForm(f => ({ ...f, hora_hasta: getHoraMinuto(f.hora_hasta.split(':')[0] || '00', e.target.value) }))} required className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-base sm:text-lg focus:ring-2 focus:ring-primary/50 transition-all flex-1">
-                <option value="">--</option>
-                {MINUTOS_PERMITIDOS.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
+              <Label className="text-sm sm:text-base">Hasta*</Label>
+              <div className="flex gap-2 items-center">
+                <Input
+                  type="time"
+                  step="300"
+                  className="flex-1 text-base sm:text-lg"
+                  value={form.hora_hasta}
+                  onChange={e => setForm(f => ({ ...f, hora_hasta: e.target.value }))}
+                  required
+                />
+              </div>
             </div>
-          </div>
           <div className="space-y-2">
             <Label htmlFor="cancha" className="text-sm sm:text-base">Establecimiento*</Label>
             <Input type="text" id="cancha" name="cancha" placeholder="Ej: Salón principal, Cancha 1, Quincho" value={form.cancha} onChange={handleChange} required className="text-sm sm:text-base" />
