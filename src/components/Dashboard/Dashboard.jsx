@@ -14,6 +14,7 @@ import ComprasSection from './sections/ComprasSection';
 import VentasSection from './sections/VentasSection';
 import InicioSection from './sections/InicioSection';
 import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX, FiMapPin } from 'react-icons/fi';
+import { Toaster } from '@/components/ui/sonner';
 import usePreventBackNavigation from '../../hooks/usePreventBackNavigation';
 
 function Dashboard({ user, onLogout }) {
@@ -227,6 +228,9 @@ function Dashboard({ user, onLogout }) {
           {renderSection()}
         </div>
       </main>
+      
+      {/* Toaster para notificaciones */}
+      <Toaster />
     </div>
   );
 }

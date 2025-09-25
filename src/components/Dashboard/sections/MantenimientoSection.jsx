@@ -18,11 +18,13 @@ const ESTADOS = [
 
 function MantenimientoSection() {
   const [tareas, setTareas] = useState([]);
+  const [establecimientos, setEstablecimientos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todos');
   const [filtroCancha, setFiltroCancha] = useState('todas');
   const [form, setForm] = useState({ fecha: '', descripcion: '', responsable: '', cancha: '' });
+  const [establecimientoSeleccionado, setEstablecimientoSeleccionado] = useState('');
   const [agregando, setAgregando] = useState(false);
   const [canchas, setCanchas] = useState([]);
   const [loadingBtn, setLoadingBtn] = useState(false);
@@ -31,26 +33,31 @@ function MantenimientoSection() {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const fetchTareas = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        let url = `${apiUrl}/mantenimientos`;
-        const params = [];
-        if (filtroEstado && filtroEstado !== 'todos') params.push(`estado=${filtroEstado}`);
-        if (filtroCancha && filtroCancha !== 'todas') params.push(`cancha=${filtroCancha}`);
-        if (params.length) url += '?' + params.join('&');
-        const res = await fetch(url);
-        const data = await res.json();
-        setTareas(data);
-        const unicas = Array.from(new Set(data.map(t => String(t.cancha))));
+        // Cargar tareas y establecimientos en paralelo
+        const [tareasRes, establecimientosRes] = await Promise.all([
+          fetch(`${apiUrl}/mantenimientos`),
+          fetch(`${apiUrl}/establecimientos`)
+        ]);
+        
+        const tareasData = await tareasRes.json();
+        const establecimientosData = await establecimientosRes.json();
+        
+        setTareas(tareasData);
+        setEstablecimientos(establecimientosData);
+        
+        // Mantener canchas para compatibilidad con filtros existentes
+        const unicas = Array.from(new Set(tareasData.map(t => String(t.cancha))));
         setCanchas(unicas);
         setError('');
       } catch (err) {
-        setError('Error al cargar tareas');
+        setError('Error al cargar datos');
       }
       setLoading(false);
     };
-    fetchTareas();
+    fetchData();
   }, [filtroEstado, filtroCancha, agregando]);
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
@@ -118,15 +125,17 @@ function MantenimientoSection() {
           </Select>
         </div>
         <div className="flex-1">
-          <Label htmlFor="filtroCancha">Lugar</Label>
+          <Label htmlFor="filtroCancha">Establecimiento</Label>
           <Select value={filtroCancha} onValueChange={setFiltroCancha}>
             <SelectTrigger>
-              <SelectValue placeholder="Todos los lugares" />
+              <SelectValue placeholder="Todos los establecimientos" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="todas">Todos los lugares</SelectItem>
-              {canchas.map(c => (
-                <SelectItem key={c} value={c}>Lugar {c}</SelectItem>
+              <SelectItem value="todas">Todos los establecimientos</SelectItem>
+              {establecimientos.map(establecimiento => (
+                <SelectItem key={establecimiento.id} value={establecimiento.nombre}>
+                  {establecimiento.nombre}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -143,7 +152,7 @@ function MantenimientoSection() {
             {tareas.map(t => (
               <Card key={t.id} className="dark:bg-[#23272b] dark:text-gray-100">
                 <CardHeader>
-                  <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Lugar {t.cancha}</CardTitle>
+                  <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Establecimiento: {t.cancha}</CardTitle>
                   <Badge variant={
                     t.estado === 'finalizada' ? 'default' : 
                     t.estado === 'en_curso' ? 'secondary' : 'outline'
@@ -188,7 +197,7 @@ function MantenimientoSection() {
                   <TableHead>Descripción</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Responsable</TableHead>
-                  <TableHead>Lugar</TableHead>
+                  <TableHead>Establecimiento</TableHead>
                   <TableHead>Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -247,7 +256,12 @@ function MantenimientoSection() {
               Completá los datos para registrar una nueva tarea de mantenimiento.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={e => { handleSubmit(e); setModalOpen(false); }} className="space-y-4">
+          <form onSubmit={e => { 
+            handleSubmit(e); 
+            setModalOpen(false); 
+            setEstablecimientoSeleccionado('');
+            setForm({ fecha: '', descripcion: '', responsable: '', cancha: '' });
+          }} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fecha">Fecha</Label>
               <Input 
@@ -283,23 +297,32 @@ function MantenimientoSection() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="cancha">Lugar</Label>
-              <Input 
-                id="cancha" 
-                type="number" 
-                name="cancha" 
-                value={form.cancha} 
-                onChange={handleChange} 
-                placeholder="Lugar*" 
-                min="1" 
-                required 
-              />
+              <Label htmlFor="cancha">Establecimiento</Label>
+              <Select value={establecimientoSeleccionado} onValueChange={(value) => {
+                setEstablecimientoSeleccionado(value);
+                setForm({...form, cancha: value});
+              }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar establecimiento*" />
+                </SelectTrigger>
+                <SelectContent>
+                  {establecimientos.map(establecimiento => (
+                    <SelectItem key={establecimiento.id} value={establecimiento.nombre}>
+                      {establecimiento.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex gap-2">
               <Button type="submit" className="flex-1" disabled={loadingBtn}>
                 {loadingBtn ? 'Guardando...' : 'Agregar tarea'}
               </Button>
-              <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => {
+                setModalOpen(false);
+                setEstablecimientoSeleccionado('');
+                setForm({ fecha: '', descripcion: '', responsable: '', cancha: '' });
+              }}>
                 Cancelar
               </Button>
             </div>

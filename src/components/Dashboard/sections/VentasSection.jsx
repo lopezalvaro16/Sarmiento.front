@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { toast } from "sonner";
 
 function VentasSection() {
   const [ventas, setVentas] = useState([]);
@@ -49,9 +50,9 @@ function VentasSection() {
       if (!res.ok) throw new Error('Error al registrar venta');
       setForm({ producto_id: '', unidad: '', observacion: '', responsable: '' });
       setModalOpen(false);
-      // toast({ description: 'Venta registrada con éxito' });
+      toast.success('Venta registrada con éxito');
     } catch (err) {
-      // toast({ description: 'Error al registrar venta', variant: 'destructive' });
+      toast.error('Error al registrar venta');
       setError('Error al registrar venta');
     }
     setLoadingBtn(false);

@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import Toast from './Toast';
 
 // Definir el rango de horarios permitidos (0 a 23)
 const HORAS_PERMITIDAS = Array.from({ length: 24 }, (_, i) => i);
@@ -219,7 +218,6 @@ function ReservasSection({ modalOpen, setModalOpen }) {
   const [error, setError] = useState('');
   const [editReserva, setEditReserva] = useState(null);
   const [modo, setModo] = useState('crear');
-  const [toast, setToast] = useState({ message: '', type: 'info' });
   const [filtroSocio, setFiltroSocio] = useState('');
   const [filtroCancha, setFiltroCancha] = useState('todas');
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -259,9 +257,9 @@ function ReservasSection({ modalOpen, setModalOpen }) {
       if (!res.ok) throw new Error(data.error || 'Error al crear reserva');
       setReservas(prev => [...prev, data]);
       setModalOpen(false);
-      setToast({ message: 'Reserva creada con éxito', type: 'success' });
+      toast.success('Reserva creada con éxito');
     } catch (err) {
-      setToast({ message: err.message || 'Error al crear reserva', type: 'error' });
+      toast.error(err.message || 'Error al crear reserva');
     }
   };
 
@@ -278,9 +276,9 @@ function ReservasSection({ modalOpen, setModalOpen }) {
       setEditReserva(null);
       setModalOpen(false);
       setModo('crear');
-      setToast({ message: 'Reserva editada con éxito', type: 'success' });
+      toast.success('Reserva editada con éxito');
     } catch (err) {
-      setToast({ message: err.message || 'Error al editar reserva', type: 'error' });
+      toast.error(err.message || 'Error al editar reserva');
     }
   };
 
@@ -290,9 +288,9 @@ function ReservasSection({ modalOpen, setModalOpen }) {
       const res = await fetch(`${apiUrl}/reservas/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar');
       setReservas(prev => prev.filter(r => r.id !== id));
-      setToast({ message: 'Reserva eliminada', type: 'success' });
+      toast.success('Reserva eliminada');
     } catch (err) {
-      setToast({ message: err.message || 'Error al eliminar reserva', type: 'error' });
+      toast.error(err.message || 'Error al eliminar reserva');
     }
   };
 
@@ -442,7 +440,6 @@ function ReservasSection({ modalOpen, setModalOpen }) {
         establecimientos={establecimientos}
       />
 
-      <Toast message={typeof toast.message === 'string' ? toast.message : ''} type={toast.type} onClose={() => setToast({ message: '', type: 'info' })} />
     </div>
   );
 }

@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import Toast from './Toast';
 
 function NuevoEstablecimientoModal({ open, onClose, onSubmit, initialData, modo }) {
   const [form, setForm] = useState(initialData || {
@@ -87,7 +86,6 @@ function EstablecimientosSection({ modalOpen, setModalOpen }) {
   const [error, setError] = useState('');
   const [editEstablecimiento, setEditEstablecimiento] = useState(null);
   const [modo, setModo] = useState('crear');
-  const [toast, setToast] = useState({ message: '', type: 'info' });
   const [filtroNombre, setFiltroNombre] = useState('');
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -118,9 +116,9 @@ function EstablecimientosSection({ modalOpen, setModalOpen }) {
       if (!res.ok) throw new Error(data.error || 'Error al crear establecimiento');
       setEstablecimientos(prev => [...prev, data]);
       setModalOpen(false);
-      setToast({ message: 'Establecimiento creado con éxito', type: 'success' });
+      toast.success('Establecimiento creado con éxito');
     } catch (err) {
-      setToast({ message: err.message || 'Error al crear establecimiento', type: 'error' });
+      toast.error(err.message || 'Error al crear establecimiento');
     }
   };
 
@@ -137,9 +135,9 @@ function EstablecimientosSection({ modalOpen, setModalOpen }) {
       setEditEstablecimiento(null);
       setModalOpen(false);
       setModo('crear');
-      setToast({ message: 'Establecimiento editado con éxito', type: 'success' });
+      toast.success('Establecimiento editado con éxito');
     } catch (err) {
-      setToast({ message: err.message || 'Error al editar establecimiento', type: 'error' });
+      toast.error(err.message || 'Error al editar establecimiento');
     }
   };
 
@@ -149,9 +147,9 @@ function EstablecimientosSection({ modalOpen, setModalOpen }) {
       const res = await fetch(`${apiUrl}/establecimientos/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar');
       setEstablecimientos(prev => prev.filter(e => e.id !== id));
-      setToast({ message: 'Establecimiento eliminado', type: 'success' });
+      toast.success('Establecimiento eliminado');
     } catch (err) {
-      setToast({ message: err.message || 'Error al eliminar establecimiento', type: 'error' });
+      toast.error(err.message || 'Error al eliminar establecimiento');
     }
   };
 
@@ -267,7 +265,6 @@ function EstablecimientosSection({ modalOpen, setModalOpen }) {
         modo={modo}
       />
 
-      <Toast message={typeof toast.message === 'string' ? toast.message : ''} type={toast.type} onClose={() => setToast({ message: '', type: 'info' })} />
     </div>
   );
 }
