@@ -17,8 +17,11 @@ function DashboardPage() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/';
+    // Confirmar antes de cerrar sesión
+    if (window.confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+      localStorage.removeItem('token');
+      window.location.href = '/';
+    }
   };
 
   return <Dashboard user={user} onLogout={handleLogout} />;

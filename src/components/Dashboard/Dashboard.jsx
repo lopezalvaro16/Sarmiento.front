@@ -14,10 +14,14 @@ import ComprasSection from './sections/ComprasSection';
 import VentasSection from './sections/VentasSection';
 import InicioSection from './sections/InicioSection';
 import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX, FiMapPin } from 'react-icons/fi';
+import usePreventBackNavigation from '../../hooks/usePreventBackNavigation';
 
 function Dashboard({ user, onLogout }) {
   // Simulación de usuario si no se pasa por props
   const admin = user || { username: 'admin', role: 'canchas' };
+
+  // Prevenir navegación hacia atrás que pueda cerrar sesión
+  usePreventBackNavigation();
 
   // Opciones de menú según el rol
   const menuOptions = {
