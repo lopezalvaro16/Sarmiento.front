@@ -56,7 +56,12 @@ function Dashboard({ user, onLogout }) {
   const [showWelcome, setShowWelcome] = useState(true);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' || (window.matchMedia('(prefers-color-scheme: dark)').matches);
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        return savedTheme === 'dark';
+      }
+      // Solo usar la preferencia del sistema si no hay preferencia guardada
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     return false;
   });
@@ -64,12 +69,17 @@ function Dashboard({ user, onLogout }) {
   React.useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
     }
   }, [darkMode]);
+
+  // Función para cambiar el tema y guardar la preferencia
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('theme', newDarkMode ? 'dark' : 'light');
+  };
 
   // Abrir sidebar con animación
   const openSidebar = () => {
@@ -127,7 +137,7 @@ function Dashboard({ user, onLogout }) {
           <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">{admin.username}</span>
           <button
             className="mt-1 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#23272b] text-gray-700 dark:text-gray-200 shadow hover:bg-gray-200 dark:hover:bg-[#2d3237] transition-all"
-            onClick={() => setDarkMode(d => !d)}
+            onClick={toggleDarkMode}
             title={darkMode ? 'Modo claro' : 'Modo oscuro'}
           >
             {darkMode ? <FiSun className="text-lg" /> : <FiMoon className="text-lg" />}
@@ -181,7 +191,7 @@ function Dashboard({ user, onLogout }) {
               <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">{admin.username}</span>
               <button
                 className="mt-1 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 text-gray-700 shadow hover:bg-gray-200 transition-all"
-                onClick={() => setDarkMode(d => !d)}
+                onClick={toggleDarkMode}
                 title={darkMode ? 'Modo claro' : 'Modo oscuro'}
               >
                 {darkMode ? <FiSun className="text-lg" /> : <FiMoon className="text-lg" />}
