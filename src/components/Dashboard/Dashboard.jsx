@@ -13,7 +13,11 @@ import StockSection from './sections/StockSection';
 import ComprasSection from './sections/ComprasSection';
 import VentasSection from './sections/VentasSection';
 import InicioSection from './sections/InicioSection';
-import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX, FiMapPin } from 'react-icons/fi';
+import InicioSociosSection from './sections/InicioSociosSection';
+import SociosSection from './sections/SociosSection';
+import ActividadesSection from './sections/ActividadesSection';
+import InscripcionesSection from './sections/InscripcionesSection';
+import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX, FiMapPin, FiUsers, FiActivity, FiUserCheck } from 'react-icons/fi';
 import { Toaster } from '@/components/ui/sonner';
 import usePreventBackNavigation from '../../hooks/usePreventBackNavigation';
 
@@ -44,6 +48,12 @@ function Dashboard({ user, onLogout }) {
       { label: 'Stock', section: 'stock', icon: <FiBox /> },
       { label: 'Compras', section: 'compras', icon: <FiShoppingCart /> },
       { label: 'Ventas', section: 'ventas', icon: <FiTrendingUp /> },
+    ],
+    socios: [
+      { label: 'Inicio', section: 'inicio', icon: <FiHome /> },
+      { label: 'Socios', section: 'socios', icon: <FiUsers /> },
+      { label: 'Actividades', section: 'actividades', icon: <FiActivity /> },
+      { label: 'Inscripciones', section: 'inscripciones', icon: <FiUserCheck /> },
     ],
   };
 
@@ -97,7 +107,17 @@ function Dashboard({ user, onLogout }) {
 
   // Renderiza la sección correspondiente
   const renderSection = () => {
-    if (selectedSection === 'inicio') return <InicioSection user={admin} onNuevaReserva={() => { setSelectedSection('reservas'); setModalOpen(true); }} onIrHorarios={() => setSelectedSection('horarios')} onIrMantenimiento={() => setSelectedSection('mantenimiento')} />;
+    if (selectedSection === 'inicio') {
+      if (admin.role === 'socios') {
+        return <InicioSociosSection 
+          user={admin} 
+          onNuevoSocio={() => setSelectedSection('socios')} 
+          onIrActividades={() => setSelectedSection('actividades')} 
+          onIrInscripciones={() => setSelectedSection('inscripciones')} 
+        />;
+      }
+      return <InicioSection user={admin} onNuevaReserva={() => { setSelectedSection('reservas'); setModalOpen(true); }} onIrHorarios={() => setSelectedSection('horarios')} onIrMantenimiento={() => setSelectedSection('mantenimiento')} />;
+    }
     if (admin.role === 'canchas') {
       if (selectedSection === 'reservas') return <ReservasSection modalOpen={modalOpen} setModalOpen={setModalOpen} />;
       if (selectedSection === 'establecimientos') return <EstablecimientosSection modalOpen={modalOpen} setModalOpen={setModalOpen} />;
@@ -116,6 +136,12 @@ function Dashboard({ user, onLogout }) {
       if (selectedSection === 'compras') return <ComprasSection />;
       if (selectedSection === 'ventas') return <VentasSection />;
       return <BuffetSection />;
+    }
+    if (admin.role === 'socios') {
+      if (selectedSection === 'socios') return <SociosSection />;
+      if (selectedSection === 'actividades') return <ActividadesSection />;
+      if (selectedSection === 'inscripciones') return <InscripcionesSection />;
+      return <SociosSection />;
     }
     return <div>Selecciona una opción del menú.</div>;
   };
