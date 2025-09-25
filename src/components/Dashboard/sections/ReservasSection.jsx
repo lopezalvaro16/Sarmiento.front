@@ -14,7 +14,7 @@ import Toast from './Toast';
 const HORAS_PERMITIDAS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTOS_PERMITIDOS = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0')); // 00, 05, ..., 55
 
-function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reservas }) {
+function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reservas, establecimientos }) {
   const [form, setForm] = useState(initialData || {
     fecha: '',
     hora_desde: '',
@@ -109,7 +109,18 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
             </div>
           <div className="space-y-2">
             <Label htmlFor="cancha" className="text-sm sm:text-base">Establecimiento*</Label>
-            <Input type="text" id="cancha" name="cancha" placeholder="Ej: Salón principal, Cancha 1, Quincho" value={form.cancha} onChange={handleChange} required className="text-sm sm:text-base" />
+            <Select name="cancha" value={form.cancha} onValueChange={(value) => setForm({...form, cancha: value})}>
+              <SelectTrigger className="text-sm sm:text-base">
+                <SelectValue placeholder="Seleccionar establecimiento" />
+              </SelectTrigger>
+              <SelectContent>
+                {establecimientos.map(establecimiento => (
+                  <SelectItem key={establecimiento.id} value={establecimiento.nombre}>
+                    {establecimiento.nombre}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="socio" className="text-sm sm:text-base">Socio*</Label>
@@ -159,6 +170,7 @@ function formatRango(hora_desde, hora_hasta) {
 
 function ReservasSection({ modalOpen, setModalOpen }) {
   const [reservas, setReservas] = useState([]);
+  const [establecimientos, setEstablecimientos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editReserva, setEditReserva] = useState(null);
@@ -169,19 +181,27 @@ function ReservasSection({ modalOpen, setModalOpen }) {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const fetchReservas = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${apiUrl}/reservas`);
-        const data = await res.json();
-        setReservas(data);
+        // Cargar reservas y establecimientos en paralelo
+        const [reservasRes, establecimientosRes] = await Promise.all([
+          fetch(`${apiUrl}/reservas`),
+          fetch(`${apiUrl}/establecimientos`)
+        ]);
+        
+        const reservasData = await reservasRes.json();
+        const establecimientosData = await establecimientosRes.json();
+        
+        setReservas(reservasData);
+        setEstablecimientos(establecimientosData);
         setError('');
       } catch (err) {
-        setError('Error al cargar reservas');
+        setError('Error al cargar datos');
       }
       setLoading(false);
     };
-    fetchReservas();
+    fetchData();
   }, []);
 
   const handleCreateReserva = async (form) => {
@@ -232,7 +252,6 @@ function ReservasSection({ modalOpen, setModalOpen }) {
     }
   };
 
-  const canchasUnicas = Array.from(new Set(reservas.map(r => String(r.cancha))));
   const sociosUnicos = Array.from(new Set(reservas.map(r => r.socio)));
 
   const reservasFiltradas = reservas.filter(r =>
@@ -291,8 +310,10 @@ function ReservasSection({ modalOpen, setModalOpen }) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todas">Todos los establecimientos</SelectItem>
-              {canchasUnicas.map(c => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
+              {establecimientos.map(establecimiento => (
+                <SelectItem key={establecimiento.id} value={establecimiento.nombre}>
+                  {establecimiento.nombre}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -374,6 +395,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
         initialData={editReserva}
         modo={modo}
         reservas={reservas}
+        establecimientos={establecimientos}
       />
 
       <Toast message={typeof toast.message === 'string' ? toast.message : ''} type={toast.type} onClose={() => setToast({ message: '', type: 'info' })} />

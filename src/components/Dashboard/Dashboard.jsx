@@ -3,6 +3,7 @@ import CanchasSection from './sections/CanchasSection';
 import CobranzasSection from './sections/CobranzasSection';
 import BuffetSection from './sections/BuffetSection';
 import ReservasSection from './sections/ReservasSection';
+import EstablecimientosSection from './sections/EstablecimientosSection';
 import HorariosSection from './sections/HorariosSection';
 import MantenimientoSection from './sections/MantenimientoSection';
 import PagosSection from './sections/PagosSection';
@@ -12,7 +13,7 @@ import StockSection from './sections/StockSection';
 import ComprasSection from './sections/ComprasSection';
 import VentasSection from './sections/VentasSection';
 import InicioSection from './sections/InicioSection';
-import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX, FiMapPin } from 'react-icons/fi';
 
 function Dashboard({ user, onLogout }) {
   // Simulación de usuario si no se pasa por props
@@ -23,6 +24,7 @@ function Dashboard({ user, onLogout }) {
     canchas: [
       { label: 'Inicio', section: 'inicio', icon: <FiHome /> },
       { label: 'Reservas', section: 'reservas', icon: <FiCalendar /> },
+      { label: 'Establecimientos', section: 'establecimientos', icon: <FiMapPin /> },
       { label: 'Horarios', section: 'horarios', icon: <FiClock /> },
       { label: 'Mantenimiento', section: 'mantenimiento', icon: <FiTool /> },
     ],
@@ -83,6 +85,7 @@ function Dashboard({ user, onLogout }) {
     if (selectedSection === 'inicio') return <InicioSection user={admin} onNuevaReserva={() => { setSelectedSection('reservas'); setModalOpen(true); }} onIrHorarios={() => setSelectedSection('horarios')} onIrMantenimiento={() => setSelectedSection('mantenimiento')} />;
     if (admin.role === 'canchas') {
       if (selectedSection === 'reservas') return <ReservasSection modalOpen={modalOpen} setModalOpen={setModalOpen} />;
+      if (selectedSection === 'establecimientos') return <EstablecimientosSection modalOpen={modalOpen} setModalOpen={setModalOpen} />;
       if (selectedSection === 'horarios') return <HorariosSection />;
       if (selectedSection === 'mantenimiento') return <MantenimientoSection />;
       return <CanchasSection />;
@@ -112,18 +115,17 @@ function Dashboard({ user, onLogout }) {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-[#f7f7f7] to-[#e9ecef] dark:from-[#181c1f] dark:to-[#23272b]">
       {/* Sidebar para desktop */}
-      <aside className="hidden md:flex flex-col w-72 sidebar-blur p-6 gap-6 shadow-xl rounded-r-3xl mt-4 mb-4 ml-2 fixed top-0 left-0 z-20"
-        style={{height: 'calc(100vh - 2rem)'}}>
-        <div className="flex flex-col items-center gap-3 mb-8">
-          <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-16 h-16 flex items-center justify-center text-3xl font-bold shadow-lg">S</div>
-          <span className="font-semibold text-gray-900 dark:text-gray-100 text-lg">{admin.username}</span>
-          <span className="text-xs text-gray-500 dark:text-gray-300">{admin.role}</span>
+      <aside className="hidden md:flex flex-col w-72 sidebar-blur p-4 gap-4 shadow-xl rounded-r-3xl mt-2 mb-2 ml-2 fixed top-0 left-0 z-20"
+        style={{height: 'calc(100vh - 1rem)'}}>
+        <div className="flex flex-col items-center gap-2 mb-4">
+          <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-14 h-14 flex items-center justify-center text-2xl font-bold shadow-lg">S</div>
+          <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">{admin.username}</span>
           <button
-            className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#23272b] text-gray-700 dark:text-gray-200 shadow hover:bg-gray-200 dark:hover:bg-[#2d3237] transition-all"
+            className="mt-1 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-[#23272b] text-gray-700 dark:text-gray-200 shadow hover:bg-gray-200 dark:hover:bg-[#2d3237] transition-all"
             onClick={() => setDarkMode(d => !d)}
             title={darkMode ? 'Modo claro' : 'Modo oscuro'}
           >
-            {darkMode ? <FiSun className="text-xl" /> : <FiMoon className="text-xl" />}
+            {darkMode ? <FiSun className="text-lg" /> : <FiMoon className="text-lg" />}
             {darkMode ? 'Claro' : 'Oscuro'}
           </button>
         </div>
@@ -131,7 +133,7 @@ function Dashboard({ user, onLogout }) {
           {(menuOptions[admin.role] || []).map(option => (
             <button
               key={option.label}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-sm transition-all text-base font-medium
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl shadow-sm transition-all text-base font-medium
                 ${selectedSection === option.section 
                   ? 'bg-gradient-to-r from-[#7ed6a7]/80 to-[#b8b5ff]/80 text-[#222] shadow-md' 
                   : 'bg-white/60 text-gray-700 hover:bg-[#f6e7cb]/80'}
@@ -143,7 +145,7 @@ function Dashboard({ user, onLogout }) {
           ))}
         </nav>
         <button 
-          className="flex items-center gap-2 px-4 py-3 bg-[#ffb3ab]/80 text-[#222] rounded-xl shadow-md hover:bg-[#ffb3ab] transition-all font-medium text-base mb-2"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#ffb3ab]/80 text-[#222] rounded-xl shadow-md hover:bg-[#ffb3ab] transition-all font-medium text-base mb-2"
           onClick={onLogout}
         >
           <FiLogOut className="text-lg" /> Cerrar sesión
@@ -158,7 +160,7 @@ function Dashboard({ user, onLogout }) {
             onClick={closeSidebar}
           ></div>
           <div
-            className={`fixed right-0 top-0 h-full w-80 sidebar-blur p-6 flex flex-col gap-6 shadow-xl rounded-l-3xl mt-2 mb-2 mr-2 transform transition-transform duration-300 ease-in-out
+            className={`fixed right-0 top-0 h-full w-80 sidebar-blur p-4 flex flex-col gap-4 shadow-xl rounded-l-3xl mt-1 mb-1 mr-1 transform transition-transform duration-300 ease-in-out
               ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
           >
             {/* Botón de cerrar visible en móvil */}
@@ -169,16 +171,15 @@ function Dashboard({ user, onLogout }) {
             >
               <FiX className="text-xl text-gray-700 dark:text-gray-200" />
             </button>
-            <div className="flex flex-col items-center gap-3 mb-8">
-              <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-16 h-16 flex items-center justify-center text-3xl font-bold shadow-lg">S</div>
-              <span className="font-semibold text-gray-900 dark:text-gray-100 text-lg">{admin.username}</span>
-              <span className="text-xs text-gray-500 dark:text-gray-300">{admin.role}</span>
+            <div className="flex flex-col items-center gap-2 mb-4">
+              <div className="rounded-full bg-gradient-to-br from-[#b8b5ff] to-[#7ed6a7] text-white w-14 h-14 flex items-center justify-center text-2xl font-bold shadow-lg">S</div>
+              <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">{admin.username}</span>
               <button
-                className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 text-gray-700 shadow hover:bg-gray-200 transition-all"
+                className="mt-1 flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 text-gray-700 shadow hover:bg-gray-200 transition-all"
                 onClick={() => setDarkMode(d => !d)}
                 title={darkMode ? 'Modo claro' : 'Modo oscuro'}
               >
-                {darkMode ? <FiSun className="text-xl" /> : <FiMoon className="text-xl" />}
+                {darkMode ? <FiSun className="text-lg" /> : <FiMoon className="text-lg" />}
                 {darkMode ? 'Claro' : 'Oscuro'}
               </button>
             </div>
@@ -186,7 +187,7 @@ function Dashboard({ user, onLogout }) {
               {(menuOptions[admin.role] || []).map(option => (
                 <button
                   key={option.label}
-                  className={`flex items-center gap-3 px-4 py-4 rounded-xl shadow-sm transition-all text-base font-medium
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl shadow-sm transition-all text-base font-medium
                     ${selectedSection === option.section 
                       ? 'bg-gradient-to-r from-[#7ed6a7]/80 to-[#b8b5ff]/80 text-[#222] shadow-md' 
                       : 'bg-white/60 text-gray-700 hover:bg-[#f6e7cb]/80'}
@@ -198,7 +199,7 @@ function Dashboard({ user, onLogout }) {
               ))}
             </nav>
             <button 
-              className="mt-auto flex items-center gap-2 px-4 py-4 bg-[#ffb3ab]/80 text-[#222] rounded-xl shadow-md hover:bg-[#ffb3ab] transition-all font-medium text-base"
+              className="mt-auto flex items-center gap-2 px-4 py-2.5 bg-[#ffb3ab]/80 text-[#222] rounded-xl shadow-md hover:bg-[#ffb3ab] transition-all font-medium text-base"
               onClick={onLogout}
             >
               <FiLogOut className="text-lg" /> Cerrar sesión
