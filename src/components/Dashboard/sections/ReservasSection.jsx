@@ -46,9 +46,19 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
       setError('Completá todos los campos obligatorios.');
       return;
     }
-    if (form.hora_hasta <= form.hora_desde) {
-      setError('La hora de fin debe ser mayor a la de inicio.');
-      return;
+    // Validar horarios - permitir cruzar medianoche
+    const horaDesde = form.hora_desde;
+    const horaHasta = form.hora_hasta;
+    
+    // Si la hora de fin es menor que la de inicio, significa que cruza medianoche
+    // En este caso, es válido (ej: 23:00 a 04:00)
+    if (horaHasta <= horaDesde) {
+      // Verificar que no sea el mismo horario (ej: 23:00 a 23:00)
+      if (horaHasta === horaDesde) {
+        setError('La hora de fin debe ser diferente a la de inicio.');
+        return;
+      }
+      // Si cruza medianoche, es válido - no hacer nada más
     }
     const now = new Date();
     const reservaDate = new Date(`${form.fecha}T${form.hora_desde}`);
@@ -56,12 +66,46 @@ function NuevaReservaModal({ open, onClose, onSubmit, initialData, modo, reserva
       setError('No se puede reservar en el pasado.');
       return;
     }
-    const existe = reservas.some(r =>
-      r.fecha === form.fecha &&
-      String(r.cancha) === String(form.cancha) &&
-      (form.hora_desde < r.hora_hasta && form.hora_hasta > r.hora_desde) &&
-      (modo !== 'editar' || r.id !== initialData?.id)
-    );
+    // Verificar superposición de reservas - manejar horarios que cruzan medianoche
+    const existe = reservas.some(r => {
+      if (r.fecha !== form.fecha || String(r.cancha) !== String(form.cancha)) {
+        return false;
+      }
+      
+      // Si es la misma reserva en modo editar, no considerar superposición
+      if (modo === 'editar' && r.id === initialData?.id) {
+        return false;
+      }
+      
+      // Verificar superposición considerando horarios que cruzan medianoche
+      const rHoraDesde = r.hora_desde;
+      const rHoraHasta = r.hora_hasta;
+      const nHoraDesde = form.hora_desde;
+      const nHoraHasta = form.hora_hasta;
+      
+      // Si la reserva existente cruza medianoche
+      if (rHoraHasta <= rHoraDesde) {
+        // Si la nueva reserva también cruza medianoche
+        if (nHoraHasta <= nHoraDesde) {
+          // Ambas cruzan medianoche - siempre hay superposición
+          return true;
+        } else {
+          // Solo la existente cruza medianoche
+          // La nueva reserva se superpone si está en el rango de medianoche
+          return nHoraDesde >= rHoraDesde || nHoraHasta <= rHoraHasta;
+        }
+      } else {
+        // La reserva existente no cruza medianoche
+        if (nHoraHasta <= nHoraDesde) {
+          // Solo la nueva cruza medianoche
+          // Se superpone si la existente está en el rango de medianoche
+          return rHoraDesde >= nHoraDesde || rHoraHasta <= nHoraHasta;
+        } else {
+          // Ninguna cruza medianoche - comparación normal
+          return nHoraDesde < rHoraHasta && nHoraHasta > rHoraDesde;
+        }
+      }
+    });
     if (existe) {
       setError('Ya existe una reserva superpuesta para ese establecimiento, fecha y horario.');
       return;
