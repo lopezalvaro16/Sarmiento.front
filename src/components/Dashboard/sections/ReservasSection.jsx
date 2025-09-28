@@ -220,6 +220,13 @@ function ReservasSection({ modalOpen, setModalOpen }) {
   const [modo, setModo] = useState('crear');
   const [filtroSocio, setFiltroSocio] = useState('');
   const [filtroCancha, setFiltroCancha] = useState('todas');
+  const [filtroFecha, setFiltroFecha] = useState('proximas'); // 'proximas', 'todas', 'rango'
+  const [fechaDesde, setFechaDesde] = useState('');
+  const [fechaHasta, setFechaHasta] = useState('');
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [reservasPorPagina] = useState(8); // Tarjetas más grandes pero claras para usuarios mayores
+  const [filtrosAbiertos, setFiltrosAbiertos] = useState(false); // Para colapsar filtros en móvil
+  const [reservaExpandida, setReservaExpandida] = useState(null); // Para expandir detalles de reserva
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -296,10 +303,48 @@ function ReservasSection({ modalOpen, setModalOpen }) {
 
   const sociosUnicos = Array.from(new Set(reservas.map(r => r.socio)));
 
+  // Función para filtrar por fecha
+  const filtrarPorFecha = (reserva) => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaReserva = new Date(reserva.fecha);
+    
+    switch (filtroFecha) {
+      case 'proximas':
+        // Solo próximas 30 días
+        const en30Dias = new Date();
+        en30Dias.setDate(hoy.getDate() + 30);
+        return fechaReserva >= hoy && fechaReserva <= en30Dias;
+      
+      case 'rango':
+        if (!fechaDesde && !fechaHasta) return true;
+        if (fechaDesde && fechaHasta) {
+          return fechaReserva >= new Date(fechaDesde) && fechaReserva <= new Date(fechaHasta);
+        }
+        if (fechaDesde) return fechaReserva >= new Date(fechaDesde);
+        if (fechaHasta) return fechaReserva <= new Date(fechaHasta);
+        return true;
+      
+      case 'todas':
+      default:
+        return true;
+    }
+  };
+
   const reservasFiltradas = reservas.filter(r =>
     (filtroSocio === '' || r.socio.toLowerCase().includes(filtroSocio.toLowerCase())) &&
-    (filtroCancha === '' || filtroCancha === 'todas' || String(r.cancha) === filtroCancha)
+    (filtroCancha === '' || filtroCancha === 'todas' || String(r.cancha) === filtroCancha) &&
+    filtrarPorFecha(r)
   );
+
+  // Ordenar por fecha (más recientes primero)
+  reservasFiltradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+  // Calcular paginación
+  const totalPaginas = Math.ceil(reservasFiltradas.length / reservasPorPagina);
+  const inicio = (paginaActual - 1) * reservasPorPagina;
+  const fin = inicio + reservasPorPagina;
+  const reservasPaginadas = reservasFiltradas.slice(inicio, fin);
 
   const handleOpenModal = (reserva = null) => {
     if (reserva) {
@@ -326,40 +371,102 @@ function ReservasSection({ modalOpen, setModalOpen }) {
     }
   };
 
+  // Funciones de paginación
+  const irAPagina = (pagina) => {
+    setPaginaActual(pagina);
+  };
+
+  const paginaAnterior = () => {
+    if (paginaActual > 1) {
+      setPaginaActual(paginaActual - 1);
+    }
+  };
+
+  const paginaSiguiente = () => {
+    if (paginaActual < totalPaginas) {
+      setPaginaActual(paginaActual + 1);
+    }
+  };
+
+  // Resetear página cuando cambien los filtros
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [filtroSocio, filtroCancha, filtroFecha, fechaDesde, fechaHasta]);
+
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <h2 className="text-xl sm:text-2xl font-bold">Reservas de Establecimientos</h2>
-        <Button onClick={() => handleOpenModal()} className="w-full sm:w-auto">+ Nueva Reserva</Button>
+      <div className="flex flex-col gap-4">
+        <div className="text-xl font-bold text-center"></div>
+        <Button 
+          onClick={() => handleOpenModal()} 
+          className="w-full text-lg py-4 h-auto font-bold bg-green-600 hover:bg-green-700 text-white"
+        >
+          ➕ Nueva Reserva
+        </Button>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-        <div className="flex-1">
-          <Label htmlFor="filtroSocio" className="text-sm sm:text-base">Filtrar por socio</Label>
-          <Input
-            id="filtroSocio"
-            placeholder="Buscar socio..."
-            value={filtroSocio}
-            onChange={(e) => setFiltroSocio(e.target.value)}
-            className="text-sm sm:text-base"
-          />
+      {/* Filtros súper simples para usuarios mayores */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+        {/* Solo los filtros más importantes */}
+        <div className="space-y-4">
+          {/* Búsqueda por socio - El más usado */}
+          <div>
+            <Input
+              id="filtroSocio"
+              placeholder="Escribir nombre del socio..."
+              value={filtroSocio}
+              onChange={(e) => setFiltroSocio(e.target.value)}
+              className="text-base h-12 w-full"
+            />
+          </div>
+
+          {/* Filtro de lugar - Solo si hay múltiples establecimientos */}
+          {establecimientos.length > 1 && (
+            <div>
+              <Select value={filtroCancha} onValueChange={setFiltroCancha}>
+                <SelectTrigger className="text-base h-12 w-full">
+                  <SelectValue placeholder="Todos los lugares" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todas">Todos los lugares</SelectItem>
+                  {establecimientos.map(establecimiento => (
+                    <SelectItem key={establecimiento.id} value={establecimiento.nombre}>
+                      {establecimiento.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Filtro de fecha - Solo 2 opciones simples */}
+          <div>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant={filtroFecha === 'proximas' ? 'default' : 'outline'}
+                onClick={() => setFiltroFecha('proximas')}
+                className="text-base py-3 h-auto font-medium"
+              >
+                📅 Próximas
+              </Button>
+              <Button
+                variant={filtroFecha === 'todas' ? 'default' : 'outline'}
+                onClick={() => setFiltroFecha('todas')}
+                className="text-base py-3 h-auto font-medium"
+              >
+                📋 Todas
+              </Button>
+            </div>
+          </div>
         </div>
-        <div className="flex-1">
-          <Label htmlFor="filtroCancha" className="text-sm sm:text-base">Filtrar por establecimiento</Label>
-          <Select value={filtroCancha} onValueChange={setFiltroCancha}>
-            <SelectTrigger className="text-sm sm:text-base">
-              <SelectValue placeholder="Todos los establecimientos" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todas">Todos los establecimientos</SelectItem>
-              {establecimientos.map(establecimiento => (
-                <SelectItem key={establecimiento.id} value={establecimiento.nombre}>
-                  {establecimiento.nombre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+
+        {/* Información simple */}
+        {/* <div className="text-center text-base font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 p-3 rounded mt-4">
+          📊 {reservasPaginadas.length} de {reservasFiltradas.length} reservas
+          {totalPaginas > 1 && (
+            <div className="text-sm mt-1">Página {paginaActual} de {totalPaginas}</div>
+          )}
+        </div> */}
       </div>
 
       {loading ? (
@@ -368,27 +475,57 @@ function ReservasSection({ modalOpen, setModalOpen }) {
         <div className="text-red-500 text-center py-8">{error}</div>
       ) : (
         <>
-          <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {reservasFiltradas.map(r => (
-              <Card key={r.id} className="hover:shadow-lg transition-shadow dark:bg-[#23272b] dark:text-gray-100">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-gray-100">{r.cancha}</CardTitle>
-                    <Badge variant={r.estado === 'Confirmada' ? 'default' : r.estado === 'Cancelada' ? 'destructive' : 'secondary'} className="text-xs">
+          {/* Lista simple para usuarios mayores */}
+          <div className="space-y-3">
+            {reservasPaginadas.map(r => (
+              <div key={r.id} className="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
+                {/* Información principal - Simple y clara */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                      {r.cancha}
+                    </div>
+                    <Badge 
+                      variant={r.estado === 'Confirmada' ? 'default' : r.estado === 'Cancelada' ? 'destructive' : 'secondary'} 
+                      className="text-sm px-3 py-1"
+                    >
                       {r.estado}
                     </Badge>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-2 pt-0">
-                  <div className="text-sm sm:text-base font-bold text-gray-800 dark:text-gray-100"><strong>Fecha:</strong> <span className="font-normal">{formatFecha(r.fecha)}</span></div>
-                  <div className="text-sm sm:text-base font-bold text-gray-800 dark:text-gray-100"><strong>Horario:</strong> <span className="font-normal">{formatRango(r.hora_desde, r.hora_hasta)}</span></div>
-                  <div className="text-sm sm:text-base font-bold text-gray-800 dark:text-gray-100"><strong>Socio:</strong> <span className="font-normal">{r.socio}</span></div>
-                  <div className="flex gap-2 pt-3">
-                    <Button size="sm" variant="outline" onClick={() => handleOpenModal(r)} className="flex-1 text-xs sm:text-sm dark:border-gray-400 dark:text-gray-100">Editar</Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(r.id)} className="flex-1 text-xs sm:text-sm dark:bg-[#ffb3ab] dark:text-[#23272b]">Eliminar</Button>
+                  
+                  <div className="space-y-2 text-base">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600 dark:text-gray-400">📅 Fecha:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{formatFecha(r.fecha)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600 dark:text-gray-400">🕐 Horario:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{formatRango(r.hora_desde, r.hora_hasta)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600 dark:text-gray-400">👤 Socio:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{r.socio}</span>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                  
+                  {/* Botones de acción - Grandes y claros */}
+                  <div className="flex gap-3 mt-4">
+                    <Button 
+                      onClick={() => handleOpenModal(r)} 
+                      className="flex-1 text-base py-3 h-auto font-medium"
+                    >
+                      ✏️ Editar
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      onClick={() => handleDelete(r.id)} 
+                      className="flex-1 text-base py-3 h-auto font-medium"
+                    >
+                      🗑️ Eliminar
+                    </Button>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -405,7 +542,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {reservasFiltradas.map(r => (
+                {reservasPaginadas.map(r => (
                   <TableRow key={r.id}>
                     <TableCell>{formatFecha(r.fecha)}</TableCell>
                     <TableCell>{r.cancha}</TableCell>
@@ -427,6 +564,83 @@ function ReservasSection({ modalOpen, setModalOpen }) {
               </TableBody>
             </Table>
           </div>
+
+          {/* Controles de paginación optimizados para móvil */}
+          {totalPaginas > 1 && (
+            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="text-base font-medium text-gray-700 dark:text-gray-300 text-center">
+                  Página {paginaActual} de {totalPaginas}
+                </div>
+                
+                {/* Botones principales - Más grandes para móvil */}
+                <div className="flex gap-3 w-full max-w-sm">
+                  <Button
+                    onClick={paginaAnterior}
+                    disabled={paginaActual === 1}
+                    variant="outline"
+                    className="flex-1 text-base py-4 h-auto font-medium"
+                  >
+                    ← Anterior
+                  </Button>
+                  <Button
+                    onClick={paginaSiguiente}
+                    disabled={paginaActual === totalPaginas}
+                    variant="outline"
+                    className="flex-1 text-base py-4 h-auto font-medium"
+                  >
+                    Siguiente →
+                  </Button>
+                </div>
+
+                {/* Números de página - Solo 3 en móvil para no abrumar */}
+                {totalPaginas <= 7 ? (
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                      <Button
+                        key={i + 1}
+                        onClick={() => irAPagina(i + 1)}
+                        variant={paginaActual === i + 1 ? 'default' : 'outline'}
+                        className="text-base px-3 py-2 h-auto min-w-[40px]"
+                      >
+                        {i + 1}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {/* Mostrar solo 3 páginas en móvil */}
+                    {Array.from({ length: 3 }, (_, i) => {
+                      let numeroPagina;
+                      if (paginaActual <= 2) {
+                        numeroPagina = i + 1;
+                      } else if (paginaActual >= totalPaginas - 1) {
+                        numeroPagina = totalPaginas - 2 + i;
+                      } else {
+                        numeroPagina = paginaActual - 1 + i;
+                      }
+
+                      return (
+                        <Button
+                          key={numeroPagina}
+                          onClick={() => irAPagina(numeroPagina)}
+                          variant={paginaActual === numeroPagina ? 'default' : 'outline'}
+                          className="text-base px-3 py-2 h-auto min-w-[40px]"
+                        >
+                          {numeroPagina}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Información compacta para móvil */}
+                <div className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                  {inicio + 1}-{Math.min(fin, reservasFiltradas.length)} de {reservasFiltradas.length}
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 
