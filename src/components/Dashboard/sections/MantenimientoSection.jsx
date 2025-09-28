@@ -104,41 +104,49 @@ function MantenimientoSection() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <h2 className="text-2xl font-bold">Mantenimiento de Lugares</h2>
-        <Button onClick={() => setModalOpen(true)}>+ Agregar tarea</Button>
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+      <div className="flex flex-col gap-4">
+        <h2 className="text-xl font-bold text-center">Mantenimiento de Lugares</h2>
+        <Button 
+          onClick={() => setModalOpen(true)} 
+          className="w-full text-lg py-4 h-auto font-bold bg-green-600 hover:bg-green-700 text-white"
+        >
+          ➕ Agregar Tarea
+        </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <Label htmlFor="filtroEstado">Estado</Label>
-          <Select value={filtroEstado} onValueChange={setFiltroEstado}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccionar estado" />
-            </SelectTrigger>
-            <SelectContent>
-              {ESTADOS.map(e => (
-                <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex-1">
-          <Label htmlFor="filtroCancha">Establecimiento</Label>
-          <Select value={filtroCancha} onValueChange={setFiltroCancha}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todos los establecimientos" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todas">Todos los establecimientos</SelectItem>
-              {establecimientos.map(establecimiento => (
-                <SelectItem key={establecimiento.id} value={establecimiento.nombre}>
-                  {establecimiento.nombre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* Filtros súper simples */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="filtroEstado" className="text-base font-medium text-gray-900 dark:text-gray-100 block mb-2">📊 Estado</Label>
+            <Select value={filtroEstado} onValueChange={setFiltroEstado}>
+              <SelectTrigger className="text-base h-12">
+                <SelectValue placeholder="Todos los estados" />
+              </SelectTrigger>
+              <SelectContent>
+                {ESTADOS.map(e => (
+                  <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="filtroCancha" className="text-base font-medium text-gray-900 dark:text-gray-100 block mb-2">🏢 Establecimiento</Label>
+            <Select value={filtroCancha} onValueChange={setFiltroCancha}>
+              <SelectTrigger className="text-base h-12">
+                <SelectValue placeholder="Todos los establecimientos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todos los establecimientos</SelectItem>
+                {establecimientos.map(establecimiento => (
+                  <SelectItem key={establecimiento.id} value={establecimiento.nombre}>
+                    {establecimiento.nombre}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -148,44 +156,65 @@ function MantenimientoSection() {
         <div className="text-red-500 text-center py-8">{typeof error === 'string' ? error : 'Ocurrió un error inesperado.'}</div>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Tarjetas simples para usuarios mayores */}
+          <div className="space-y-3">
             {tareas.map(t => (
-              <Card key={t.id} className="dark:bg-[#23272b] dark:text-gray-100">
-                <CardHeader>
-                  <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Establecimiento: {t.cancha}</CardTitle>
-                  <Badge variant={
-                    t.estado === 'finalizada' ? 'default' : 
-                    t.estado === 'en_curso' ? 'secondary' : 'outline'
-                  } className="dark:bg-[#7ed6a7] dark:text-[#23272b]">{t.estado}</Badge>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="text-gray-800 dark:text-gray-100"><strong>Fecha:</strong> {t.fecha.slice(0,10)}</div>
-                  <div className="text-gray-800 dark:text-gray-100"><strong>Descripción:</strong> {t.descripcion}</div>
-                  <div className="text-gray-800 dark:text-gray-100"><strong>Responsable:</strong> {t.responsable || '-'}</div>
+              <div key={t.id} className="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                      🏢 {t.cancha}
+                    </div>
+                    <Badge 
+                      variant={
+                        t.estado === 'finalizada' ? 'default' : 
+                        t.estado === 'en_curso' ? 'secondary' : 'outline'
+                      } 
+                      className="text-sm px-3 py-1"
+                    >
+                      {t.estado}
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-2 text-base mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600 dark:text-gray-400">📅 Fecha:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{t.fecha.slice(0,10)}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-gray-600 dark:text-gray-400">📝 Descripción:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{t.descripcion}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600 dark:text-gray-400">👤 Responsable:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{t.responsable || 'Sin asignar'}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Botones de acción - Solo si no está finalizada */}
                   {t.estado !== 'finalizada' && (
-                    <div className="flex gap-2 pt-2">
+                    <div className="flex gap-3">
                       {t.estado !== 'en_curso' && (
                         <Button 
-                          size="sm" 
                           variant="secondary" 
                           onClick={() => cambiarEstado(t.id, 'en_curso')} 
                           disabled={loadingEstadoId === t.id}
+                          className="flex-1 text-base py-3 h-auto font-medium"
                         >
-                          {loadingEstadoId === t.id ? 'Cargando...' : 'En curso'}
+                          {loadingEstadoId === t.id ? '⏳ Cargando...' : '🔄 En curso'}
                         </Button>
                       )}
                       <Button 
-                        size="sm" 
-                        variant="default" 
                         onClick={() => cambiarEstado(t.id, 'finalizada')} 
                         disabled={loadingEstadoId === t.id}
+                        className="flex-1 text-base py-3 h-auto font-medium"
                       >
-                        {loadingEstadoId === t.id ? 'Cargando...' : 'Finalizar'}
+                        {loadingEstadoId === t.id ? '⏳ Cargando...' : '✅ Finalizar'}
                       </Button>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -249,10 +278,10 @@ function MantenimientoSection() {
       )}
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-      <DialogContent className="sm:max-w-md max-w-[95vw] mx-auto my-auto flex flex-col justify-center items-center">
+        <DialogContent className="sm:max-w-md max-w-[95vw] max-h-[90vh] overflow-y-auto mx-auto my-auto">
           <DialogHeader>
-            <DialogTitle>Agregar tarea de mantenimiento</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl">🔧 Agregar Tarea de Mantenimiento</DialogTitle>
+            <DialogDescription className="text-base">
               Completá los datos para registrar una nueva tarea de mantenimiento.
             </DialogDescription>
           </DialogHeader>
@@ -261,9 +290,9 @@ function MantenimientoSection() {
             setModalOpen(false); 
             setEstablecimientoSeleccionado('');
             setForm({ fecha: '', descripcion: '', responsable: '', cancha: '' });
-          }} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fecha">Fecha</Label>
+          }} className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="fecha" className="text-base font-medium text-gray-900 dark:text-gray-100">📅 Fecha*</Label>
               <Input 
                 id="fecha" 
                 type="date" 
@@ -271,39 +300,42 @@ function MantenimientoSection() {
                 value={form.fecha} 
                 onChange={handleChange} 
                 required 
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="descripcion">Descripción</Label>
+            <div className="space-y-3">
+              <Label htmlFor="descripcion" className="text-base font-medium text-gray-900 dark:text-gray-100">📝 Descripción*</Label>
               <Input 
                 id="descripcion" 
                 type="text" 
                 name="descripcion" 
                 value={form.descripcion} 
                 onChange={handleChange} 
-                placeholder="Descripción*" 
+                placeholder="Descripción de la tarea..." 
                 required 
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="responsable">Responsable</Label>
+            <div className="space-y-3">
+              <Label htmlFor="responsable" className="text-base font-medium text-gray-900 dark:text-gray-100">👤 Responsable</Label>
               <Input 
                 id="responsable" 
                 type="text" 
                 name="responsable" 
                 value={form.responsable} 
                 onChange={handleChange} 
-                placeholder="Responsable" 
+                placeholder="Nombre del responsable..." 
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="cancha">Establecimiento</Label>
+            <div className="space-y-3">
+              <Label htmlFor="cancha" className="text-base font-medium text-gray-900 dark:text-gray-100">🏢 Establecimiento*</Label>
               <Select value={establecimientoSeleccionado} onValueChange={(value) => {
                 setEstablecimientoSeleccionado(value);
                 setForm({...form, cancha: value});
               }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar establecimiento*" />
+                <SelectTrigger className="text-base h-12">
+                  <SelectValue placeholder="Seleccionar establecimiento" />
                 </SelectTrigger>
                 <SelectContent>
                   {establecimientos.map(establecimiento => (
@@ -314,16 +346,16 @@ function MantenimientoSection() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex gap-2">
-              <Button type="submit" className="flex-1" disabled={loadingBtn}>
-                {loadingBtn ? 'Guardando...' : 'Agregar tarea'}
+            <div className="flex flex-col gap-3 pt-4">
+              <Button type="submit" className="w-full text-base py-4 h-auto font-medium" disabled={loadingBtn}>
+                {loadingBtn ? '⏳ Guardando...' : '💾 Agregar Tarea'}
               </Button>
               <Button type="button" variant="outline" onClick={() => {
                 setModalOpen(false);
                 setEstablecimientoSeleccionado('');
                 setForm({ fecha: '', descripcion: '', responsable: '', cancha: '' });
-              }}>
-                Cancelar
+              }} className="w-full text-base py-4 h-auto font-medium">
+                ❌ Cancelar
               </Button>
             </div>
           </form>

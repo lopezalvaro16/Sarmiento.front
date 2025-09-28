@@ -43,9 +43,9 @@ function NuevoEstablecimientoModal({ open, onClose, onSubmit, initialData, modo 
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">{modo === 'editar' ? 'Editar establecimiento' : 'Nuevo Establecimiento'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="nombre" className="text-sm sm:text-base">Nombre*</Label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <Label htmlFor="nombre" className="text-base font-medium text-gray-900 dark:text-gray-100">🏢 Nombre del establecimiento*</Label>
             <Input 
               type="text" 
               id="nombre" 
@@ -54,25 +54,25 @@ function NuevoEstablecimientoModal({ open, onClose, onSubmit, initialData, modo 
               value={form.nombre} 
               onChange={handleChange} 
               required 
-              className="text-sm sm:text-base" 
+              className="text-base h-12" 
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="descripcion" className="text-sm sm:text-base">Descripción</Label>
+          <div className="space-y-3">
+            <Label htmlFor="descripcion" className="text-base font-medium text-gray-900 dark:text-gray-100">📝 Descripción (opcional)</Label>
             <Input 
               type="text" 
               id="descripcion" 
               name="descripcion" 
-              placeholder="Descripción opcional del establecimiento" 
+              placeholder="Descripción del establecimiento" 
               value={form.descripcion} 
               onChange={handleChange} 
-              className="text-sm sm:text-base" 
+              className="text-base h-12" 
             />
           </div>
-          {error && <div className="text-red-500 text-sm">{error}</div>}
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
-            <Button type="submit" className="flex-1 text-sm sm:text-base">{modo === 'editar' ? 'Guardar cambios' : 'Guardar'}</Button>
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1 text-sm sm:text-base">Cancelar</Button>
+          {error && <div className="text-red-500 text-base text-center bg-red-50 dark:bg-red-900/20 p-3 rounded">{error}</div>}
+          <div className="flex flex-col gap-3 pt-4">
+            <Button type="submit" className="w-full text-base py-4 h-auto font-medium">{modo === 'editar' ? '💾 Guardar cambios' : '💾 Guardar'}</Button>
+            <Button type="button" variant="outline" onClick={onClose} className="w-full text-base py-4 h-auto font-medium">❌ Cancelar</Button>
           </div>
         </form>
       </DialogContent>
@@ -184,21 +184,28 @@ function EstablecimientosSection({ modalOpen, setModalOpen }) {
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <h2 className="text-xl sm:text-2xl font-bold">Gestión de Establecimientos</h2>
-        <Button onClick={() => handleOpenModal()} className="w-full sm:w-auto">+ Nuevo Establecimiento</Button>
+      <div className="flex flex-col gap-4">
+        <h2 className="text-xl font-bold text-center"></h2>
+        <Button 
+          onClick={() => handleOpenModal()} 
+          className="w-full text-lg py-4 h-auto font-bold bg-green-600 hover:bg-green-700 text-white"
+        >
+          ➕ Nuevo Establecimiento
+        </Button>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-        <div className="flex-1">
-          <Label htmlFor="filtroNombre" className="text-sm sm:text-base">Filtrar por nombre</Label>
-          <Input
-            id="filtroNombre"
-            placeholder="Buscar establecimiento..."
-            value={filtroNombre}
-            onChange={(e) => setFiltroNombre(e.target.value)}
-            className="text-sm sm:text-base"
-          />
+      {/* Filtro súper simple */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+        <div className="space-y-4">
+          <div>
+            <Input
+              id="filtroNombre"
+              placeholder="🔍 Buscar establecimiento por nombre..."
+              value={filtroNombre}
+              onChange={(e) => setFiltroNombre(e.target.value)}
+              className="text-base h-12 w-full"
+            />
+          </div>
         </div>
       </div>
 
@@ -208,24 +215,42 @@ function EstablecimientosSection({ modalOpen, setModalOpen }) {
         <div className="text-red-500 text-center py-8">{error}</div>
       ) : (
         <>
-          <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Tarjetas simples para usuarios mayores */}
+          <div className="space-y-3">
             {establecimientosFiltrados.map(e => (
-              <Card key={e.id} className="hover:shadow-lg transition-shadow dark:bg-[#23272b] dark:text-gray-100">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-gray-100">{e.nombre}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 pt-0">
+              <div key={e.id} className="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
+                <div className="p-4">
+                  <div className="mb-3">
+                    <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                      🏢 {e.nombre}
+                    </div>
+                  </div>
+                  
                   {e.descripcion && (
-                    <div className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
-                      <strong>Descripción:</strong> {e.descripcion}
+                    <div className="text-base mb-4">
+                      <span className="text-gray-600 dark:text-gray-400">📝 Descripción:</span>
+                      <div className="text-gray-700 dark:text-gray-300 mt-1">{e.descripcion}</div>
                     </div>
                   )}
-                  <div className="flex gap-2 pt-3">
-                    <Button size="sm" variant="outline" onClick={() => handleOpenModal(e)} className="flex-1 text-xs sm:text-sm dark:border-gray-400 dark:text-gray-100">Editar</Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(e.id)} className="flex-1 text-xs sm:text-sm dark:bg-[#ffb3ab] dark:text-[#23272b]">Eliminar</Button>
+                  
+                  {/* Botones de acción - Grandes y claros */}
+                  <div className="flex gap-3">
+                    <Button 
+                      onClick={() => handleOpenModal(e)} 
+                      className="flex-1 text-base py-3 h-auto font-medium"
+                    >
+                      ✏️ Editar
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      onClick={() => handleDelete(e.id)} 
+                      className="flex-1 text-base py-3 h-auto font-medium"
+                    >
+                      🗑️ Eliminar
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
 
