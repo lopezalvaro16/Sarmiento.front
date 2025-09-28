@@ -302,7 +302,7 @@ function HorariosSection() {
               value={formatDMY(selectedDate)}
               onClick={() => setShowCalendar(!showCalendar)}
               readOnly
-              className="w-full px-3 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-12 cursor-pointer bg-white"
+              className="w-full px-3 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-12 cursor-pointer bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               placeholder="Seleccionar fecha"
             />
             
@@ -320,7 +320,7 @@ function HorariosSection() {
                     <FaChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
                   
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 text-center px-2">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-200 text-center px-2">
                     {currentMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
                   </h3>
                   
@@ -337,7 +337,7 @@ function HorariosSection() {
                 {/* Días de la semana - Más compactos */}
                 <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1 sm:mb-2">
                   {['LU', 'MA', 'MI', 'JU', 'VI', 'SA', 'DO'].map(dia => (
-                    <div key={dia} className="text-center text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 py-1">
+                    <div key={dia} className="text-center text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-300 py-1">
                       {dia}
                     </div>
                   ))}
@@ -357,7 +357,7 @@ function HorariosSection() {
                       className={`
                         p-1 sm:p-2 text-xs sm:text-sm rounded-md transition-colors min-h-[32px] sm:min-h-[36px] flex items-center justify-center
                         ${!dia.esDelMesActual 
-                          ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed' 
+                          ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed' 
                           : 'hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer'
                         }
                         ${dia.esHoy 
@@ -366,7 +366,7 @@ function HorariosSection() {
                             ? 'bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 font-bold'
                             : dia.tieneReservas
                               ? 'bg-orange-200 dark:bg-orange-800 text-orange-900 dark:text-orange-100 font-medium'
-                              : 'text-gray-900 dark:text-gray-100'
+                              : 'text-gray-900 dark:text-gray-200'
                         }
                       `}
                     >
