@@ -27,9 +27,10 @@ function VentasSection() {
       try {
         const res = await fetch(`${apiUrl}/ventas_buffet`);
         const data = await res.json();
-        setVentas(data);
+        setVentas(Array.isArray(data) ? data : []); // Asegurar que sea array
         setError('');
       } catch (err) {
+        setVentas([]); // Inicializar como array vacío en caso de error
         setError('Error al cargar ventas');
       }
       setLoading(false);
@@ -38,8 +39,10 @@ function VentasSection() {
       try {
         const res = await fetch(`${apiUrl}/productos_buffet`);
         const data = await res.json();
-        setProductos(data);
-      } catch {}
+        setProductos(Array.isArray(data) ? data : []); // Asegurar que sea array
+      } catch (err) {
+        setProductos([]); // Inicializar como array vacío en caso de error
+      }
     };
     fetchVentas();
     fetchProductos();
@@ -70,7 +73,7 @@ function VentasSection() {
   const productoSeleccionado = productos.find(p => p.id == form.producto_id);
 
   // Filtrar ventas localmente
-  const ventasFiltradas = ventas.filter(v => {
+  const ventasFiltradas = (Array.isArray(ventas) ? ventas : []).filter(v => {
     const cumpleProducto = filtroProducto === 'todos' || v.producto_id.toString() === filtroProducto;
     const cumpleResponsable = filtroResponsable === '' || 
       (v.responsable && v.responsable.toLowerCase().includes(filtroResponsable.toLowerCase()));
@@ -100,7 +103,7 @@ function VentasSection() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos los productos</SelectItem>
-                {productos.map(p => (
+                {(Array.isArray(productos) ? productos : []).map(p => (
                   <SelectItem key={p.id} value={p.id.toString()}>{p.nombre}</SelectItem>
                 ))}
               </SelectContent>
@@ -225,7 +228,7 @@ function VentasSection() {
                   <SelectValue placeholder="Seleccionar producto" />
                 </SelectTrigger>
                 <SelectContent>
-                  {productos.map(p => (
+                  {(Array.isArray(productos) ? productos : []).map(p => (
                     <SelectItem key={p.id} value={p.id.toString()}>{p.nombre}</SelectItem>
                   ))}
                 </SelectContent>

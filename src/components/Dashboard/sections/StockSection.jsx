@@ -36,9 +36,10 @@ function StockSection({ modalOpen, setModalOpen }) {
       try {
         const res = await fetch(`${apiUrl}/productos_buffet`);
         const data = await res.json();
-        setProductos(data);
+        setProductos(Array.isArray(data) ? data : []); // Asegurar que sea array
         setError('');
       } catch (err) {
+        setProductos([]); // Inicializar como array vacío en caso de error
         setError('Error al cargar productos');
       }
       setLoading(false);
@@ -46,7 +47,7 @@ function StockSection({ modalOpen, setModalOpen }) {
     fetchProductos();
   }, [loadingBtn]);
 
-  const productosFiltrados = productos.filter(p =>
+  const productosFiltrados = (Array.isArray(productos) ? productos : []).filter(p =>
     (filtroEstado === 'todos' || p.estado === filtroEstado) &&
     (busqueda === '' || p.nombre.toLowerCase().includes(busqueda.toLowerCase()))
   );
@@ -128,7 +129,7 @@ function StockSection({ modalOpen, setModalOpen }) {
     try {
       const res = await fetch(`${apiUrl}/productos_buffet/${producto.id}/movimientos`);
       const data = await res.json();
-      setMovimientos(data);
+      setMovimientos(Array.isArray(data) ? data : []); // Asegurar que sea array
     } catch (err) {
       setMovimientos([]);
     }
@@ -416,14 +417,14 @@ function StockSection({ modalOpen, setModalOpen }) {
             <DialogTitle className="text-lg sm:text-xl">📊 Historial de Movimientos - {movProdNombre}</DialogTitle>
           </DialogHeader>
           <div className="max-h-96 overflow-y-auto">
-            {movimientos.length === 0 ? (
+            {(Array.isArray(movimientos) ? movimientos : []).length === 0 ? (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 <div className="text-4xl mb-2">📊</div>
                 <div className="text-lg">No hay movimientos registrados</div>
               </div>
             ) : (
               <div className="space-y-3">
-                {movimientos.map((m, i) => (
+                {(Array.isArray(movimientos) ? movimientos : []).map((m, i) => (
                   <div key={i} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
                     <div className="flex items-center justify-between mb-2">
                       <div className="font-medium text-gray-900 dark:text-gray-100">{m.tipo}</div>
