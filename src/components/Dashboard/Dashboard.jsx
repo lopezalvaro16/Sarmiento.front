@@ -135,7 +135,11 @@ function Dashboard({ user, onLogout }) {
       if (selectedSection === 'stock') return <StockSection modalOpen={modalOpen} setModalOpen={setModalOpen} />;
       if (selectedSection === 'compras') return <ComprasSection />;
       if (selectedSection === 'ventas') return <VentasSection />;
-      return <BuffetSection />;
+      return <BuffetSection 
+        onNuevoStock={() => setSelectedSection('stock')} 
+        onNuevaCompra={() => setSelectedSection('compras')} 
+        onNuevaVenta={() => setSelectedSection('ventas')} 
+      />;
     }
     if (admin.role === 'socios') {
       if (selectedSection === 'socios') return <SociosSection />;

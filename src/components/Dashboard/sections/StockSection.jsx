@@ -141,201 +141,268 @@ function StockSection({ modalOpen, setModalOpen }) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <h2 className="text-2xl font-bold">Stock de Buffet</h2>
-        <Button onClick={handleOpenModal}>+ Agregar producto</Button>
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+      <div className="flex flex-col gap-4">
+        <h2 className="text-xl font-bold text-center">📦 Gestión de Stock</h2>
+        <Button 
+          onClick={handleOpenModal} 
+          className="w-full text-lg py-4 h-auto font-bold bg-green-600 hover:bg-green-700 text-white"
+        >
+          ➕ Nuevo Producto
+        </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <Label htmlFor="filtroEstado">Estado</Label>
-          <Select value={filtroEstado} onValueChange={setFiltroEstado}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccionar estado" />
-            </SelectTrigger>
-            <SelectContent>
-              {ESTADOS.map(e => (
-                <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex-1">
-          <Label htmlFor="busqueda">Buscar producto</Label>
-          <Input
-            id="busqueda"
-            type="text"
-            placeholder="Buscar producto..."
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-          />
+      {/* Filtros súper simples para usuarios mayores */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="filtroEstado" className="text-base font-medium text-gray-900 dark:text-gray-100 block mb-2">📊 Estado</Label>
+            <Select value={filtroEstado} onValueChange={setFiltroEstado}>
+              <SelectTrigger className="text-base h-12 w-full">
+                <SelectValue placeholder="Todos los estados" />
+              </SelectTrigger>
+              <SelectContent>
+                {ESTADOS.map(e => (
+                  <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="busqueda" className="text-base font-medium text-gray-900 dark:text-gray-100 block mb-2">🔍 Buscar producto</Label>
+            <Input
+              id="busqueda"
+              type="text"
+              placeholder="Escribir nombre del producto..."
+              value={busqueda}
+              onChange={e => setBusqueda(e.target.value)}
+              className="text-base h-12 w-full"
+            />
+          </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-center py-8">Cargando...</div>
+        <div className="text-center py-8">
+          <div className="text-lg">⏳ Cargando productos...</div>
+        </div>
       ) : error ? (
         <div className="text-red-500 text-center py-8">{error}</div>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {productosFiltrados.map(p => (
-              <Card key={p.id}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{p.nombre}</CardTitle>
-                  <Badge variant={p.estado === 'activo' ? 'default' : 'secondary'}>
-                    {p.estado}
-                  </Badge>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div><strong>Cantidad:</strong> {p.cantidad}</div>
-                  <div><strong>Unidad:</strong> {p.unidad}</div>
-                  <div><strong>Precio:</strong> {p.precio ? `$${p.precio}` : '-'}</div>
-                  <div><strong>Proveedor:</strong> {p.proveedor || '-'}</div>
-                  <div><strong>Stock total:</strong> {parseInt(p.cantidad || 0) * parseInt(p.unidad || 1)} unidades</div>
-                  <div className="flex gap-2 pt-2">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(p)} disabled={loadingBtn}>
-                      Editar
-                    </Button>
-                    {p.estado === 'activo' && (
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(p.id)} disabled={loadingBtn}>
-                        Dar de baja
-                      </Button>
-                    )}
-                    <Button size="sm" variant="secondary" onClick={() => handleOpenHistorial(p)}>
-                      Ver historial
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="hidden lg:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>Cantidad (packs)</TableHead>
-                  <TableHead>Unidad (por pack)</TableHead>
-                  <TableHead>Stock total (unidades)</TableHead>
-                  <TableHead>Precio</TableHead>
-                  <TableHead>Proveedor</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {productosFiltrados.map(p => (
-                  <TableRow key={p.id}>
-                    <TableCell>{p.nombre}</TableCell>
-                    <TableCell>{p.cantidad}</TableCell>
-                    <TableCell>{p.unidad}</TableCell>
-                    <TableCell>{parseInt(p.cantidad || 0) * parseInt(p.unidad || 1)}</TableCell>
-                    <TableCell>{p.precio ? `$${p.precio}` : '-'}</TableCell>
-                    <TableCell>{p.proveedor || '-'}</TableCell>
-                    <TableCell>
-                      <Badge variant={p.estado === 'activo' ? 'default' : 'secondary'}>
-                        {p.estado}
+          {/* Vista móvil - Solo tarjetas */}
+          <div className="block lg:hidden space-y-3">
+            {productosFiltrados.length === 0 ? (
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg">
+                <div className="text-4xl mb-2">📦</div>
+                <div className="text-lg">No se encontraron productos</div>
+              </div>
+            ) : (
+              productosFiltrados.map(p => (
+                <div key={p.id} className="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-lg font-bold text-gray-900 dark:text-gray-100">📦 {p.nombre}</div>
+                      <Badge variant={p.estado === 'activo' ? 'default' : 'secondary'} className="text-sm px-3 py-1">
+                        {p.estado === 'activo' ? '✅ Activo' : '⏸️ Inactivo'}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
+                    </div>
+                    
+                    <div className="space-y-2 text-base mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-600 dark:text-gray-400">📊 Cantidad:</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">{p.cantidad}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-600 dark:text-gray-400">📦 Unidad:</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">{p.unidad}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-600 dark:text-gray-400">💰 Precio:</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">{p.precio ? `$${p.precio}` : 'Sin precio'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-600 dark:text-gray-400">🏢 Proveedor:</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">{p.proveedor || 'Sin proveedor'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-600 dark:text-gray-400">📈 Stock total:</span>
+                        <span className="font-bold text-blue-600 dark:text-blue-400">{parseInt(p.cantidad || 0) * parseInt(p.unidad || 1)} unidades</span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleEdit(p)} disabled={loadingBtn}>
-                          Editar
+                        <Button 
+                          onClick={() => handleEdit(p)} 
+                          disabled={loadingBtn}
+                          className="flex-1 text-base py-3 h-auto font-medium"
+                        >
+                          ✏️ Editar
                         </Button>
                         {p.estado === 'activo' && (
-                          <Button size="sm" variant="destructive" onClick={() => handleDelete(p.id)} disabled={loadingBtn}>
-                            Dar de baja
+                          <Button 
+                            variant="destructive" 
+                            onClick={() => handleDelete(p.id)} 
+                            disabled={loadingBtn}
+                            className="flex-1 text-base py-3 h-auto font-medium"
+                          >
+                            🗑️ Dar de baja
                           </Button>
                         )}
-                        <Button size="sm" variant="secondary" onClick={() => handleOpenHistorial(p)}>
-                          Historial
-                        </Button>
                       </div>
-                    </TableCell>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleOpenHistorial(p)}
+                        className="w-full text-base py-3 h-auto font-medium"
+                      >
+                        📊 Ver historial
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Vista desktop - Solo tabla */}
+          <div className="hidden lg:block">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-2 border-gray-200 dark:border-gray-700">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Producto</TableHead>
+                    <TableHead>Cantidad (packs)</TableHead>
+                    <TableHead>Unidad (por pack)</TableHead>
+                    <TableHead>Stock total</TableHead>
+                    <TableHead>Precio</TableHead>
+                    <TableHead>Proveedor</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Acciones</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {productosFiltrados.map(p => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-medium">📦 {p.nombre}</TableCell>
+                      <TableCell>{p.cantidad}</TableCell>
+                      <TableCell>{p.unidad}</TableCell>
+                      <TableCell className="font-bold text-blue-600 dark:text-blue-400">
+                        {parseInt(p.cantidad || 0) * parseInt(p.unidad || 1)} unidades
+                      </TableCell>
+                      <TableCell>{p.precio ? `$${p.precio}` : 'Sin precio'}</TableCell>
+                      <TableCell>{p.proveedor || 'Sin proveedor'}</TableCell>
+                      <TableCell>
+                        <Badge variant={p.estado === 'activo' ? 'default' : 'secondary'}>
+                          {p.estado === 'activo' ? '✅ Activo' : '⏸️ Inactivo'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="outline" onClick={() => handleEdit(p)} disabled={loadingBtn} className="text-xs px-2 py-1 h-6">
+                              ✏️ Editar
+                            </Button>
+                            {p.estado === 'activo' && (
+                              <Button size="sm" variant="destructive" onClick={() => handleDelete(p.id)} disabled={loadingBtn} className="text-xs px-2 py-1 h-6">
+                                🗑️ Baja
+                              </Button>
+                            )}
+                          </div>
+                          <Button size="sm" variant="secondary" onClick={() => handleOpenHistorial(p)} className="text-xs px-2 py-1 h-6">
+                            📊 Historial
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </>
       )}
 
       {/* Modal alta/edición */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-w-[95vw] max-h-[90vh] overflow-y-auto mx-auto my-auto">
           <DialogHeader>
-            <DialogTitle>{editId ? 'Editar producto' : 'Agregar producto'}</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">
+              {editId ? '✏️ Editar Producto' : '📦 Nuevo Producto'}
+            </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre</Label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="nombre" className="text-base font-medium text-gray-900 dark:text-gray-100">📦 Nombre*</Label>
               <Input
                 id="nombre"
                 type="text"
                 name="nombre"
                 value={form.nombre}
                 onChange={handleChange}
-                placeholder="Nombre*"
+                placeholder="Nombre del producto"
                 required
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="cantidad">Cantidad</Label>
+            <div className="space-y-3">
+              <Label htmlFor="cantidad" className="text-base font-medium text-gray-900 dark:text-gray-100">📊 Cantidad*</Label>
               <Input
                 id="cantidad"
                 type="text"
                 name="cantidad"
                 value={form.cantidad}
                 onChange={handleChange}
-                placeholder="Cantidad* (Ej: 10 6)"
+                placeholder="Ej: 10 6 (10 packs de 6 unidades)"
                 required
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="unidad">Unidad</Label>
+            <div className="space-y-3">
+              <Label htmlFor="unidad" className="text-base font-medium text-gray-900 dark:text-gray-100">📦 Unidad*</Label>
               <Input
                 id="unidad"
                 type="text"
                 name="unidad"
                 value={form.unidad}
                 onChange={handleChange}
-                placeholder="Unidad*"
+                placeholder="Ej: 6 (unidades por pack)"
                 required
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="precio">Precio</Label>
+            <div className="space-y-3">
+              <Label htmlFor="precio" className="text-base font-medium text-gray-900 dark:text-gray-100">💰 Precio</Label>
               <Input
                 id="precio"
                 type="number"
                 name="precio"
                 value={form.precio}
                 onChange={handleChange}
-                placeholder="Precio"
+                placeholder="Precio por unidad"
                 min="0"
                 step="0.01"
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="proveedor">Proveedor</Label>
+            <div className="space-y-3">
+              <Label htmlFor="proveedor" className="text-base font-medium text-gray-900 dark:text-gray-100">🏢 Proveedor</Label>
               <Input
                 id="proveedor"
                 type="text"
                 name="proveedor"
                 value={form.proveedor}
                 onChange={handleChange}
-                placeholder="Proveedor"
+                placeholder="Nombre del proveedor"
+                className="text-base h-12"
               />
             </div>
-            <div className="flex gap-2">
-              <Button type="submit" className="flex-1" disabled={loadingBtn}>
-                {loadingBtn ? 'Guardando...' : (editId ? 'Guardar cambios' : 'Agregar producto')}
+            <div className="flex flex-col gap-3 pt-4">
+              <Button type="submit" className="w-full text-base py-4 h-auto font-medium" disabled={loadingBtn}>
+                {loadingBtn ? '⏳ Guardando...' : (editId ? '💾 Guardar Cambios' : '💾 Agregar Producto')}
               </Button>
-              <Button type="button" variant="outline" onClick={() => setModalOpen(false)}>
-                Cancelar
+              <Button type="button" variant="outline" onClick={() => setModalOpen(false)} className="w-full text-base py-4 h-auto font-medium">
+                ❌ Cancelar
               </Button>
             </div>
           </form>
@@ -344,34 +411,38 @@ function StockSection({ modalOpen, setModalOpen }) {
 
       {/* Modal historial */}
       <Dialog open={historialModalOpen} onOpenChange={handleCloseHistorial}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl max-w-[95vw] max-h-[90vh] overflow-y-auto mx-auto my-auto">
           <DialogHeader>
-            <DialogTitle>Historial de movimientos - {movProdNombre}</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">📊 Historial de Movimientos - {movProdNombre}</DialogTitle>
           </DialogHeader>
           <div className="max-h-96 overflow-y-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Cantidad</TableHead>
-                  <TableHead>Motivo</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            {movimientos.length === 0 ? (
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <div className="text-4xl mb-2">📊</div>
+                <div className="text-lg">No hay movimientos registrados</div>
+              </div>
+            ) : (
+              <div className="space-y-3">
                 {movimientos.map((m, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{m.fecha}</TableCell>
-                    <TableCell>{m.tipo}</TableCell>
-                    <TableCell>{m.cantidad}</TableCell>
-                    <TableCell>{m.motivo}</TableCell>
-                  </TableRow>
+                  <div key={i} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-medium text-gray-900 dark:text-gray-100">{m.tipo}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{m.fecha}</div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-sm">
+                        <span className="text-gray-600 dark:text-gray-400">Cantidad:</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100 ml-2">{m.cantidad}</span>
+                      </div>
+                      {m.motivo && (
+                        <div className="text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">Motivo:</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100 ml-2">{m.motivo}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
-            {movimientos.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                No hay movimientos registrados
               </div>
             )}
           </div>
