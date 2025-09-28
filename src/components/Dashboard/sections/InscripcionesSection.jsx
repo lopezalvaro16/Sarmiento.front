@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -65,13 +65,16 @@ function NuevaInscripcionModal({ open, onClose, onSubmit, socios, actividades })
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md max-w-[95vw] mx-auto my-auto">
         <DialogHeader>
-          <DialogTitle>Nueva Inscripción</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">📝 Nueva Inscripción</DialogTitle>
+          <DialogDescription className="text-base">
+            Inscribí un socio a una actividad.
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="socio_id">Socio*</Label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <Label htmlFor="socio_id" className="text-base font-medium text-gray-900 dark:text-gray-100">👤 Socio*</Label>
             <Select value={form.socio_id} onValueChange={(value) => setForm({...form, socio_id: value})}>
-              <SelectTrigger>
+              <SelectTrigger className="text-base h-12">
                 <SelectValue placeholder="Seleccionar socio" />
               </SelectTrigger>
               <SelectContent>
@@ -84,10 +87,10 @@ function NuevaInscripcionModal({ open, onClose, onSubmit, socios, actividades })
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="actividad_id">Actividad*</Label>
+          <div className="space-y-3">
+            <Label htmlFor="actividad_id" className="text-base font-medium text-gray-900 dark:text-gray-100">🏃‍♂️ Actividad*</Label>
             <Select value={form.actividad_id} onValueChange={(value) => setForm({...form, actividad_id: value})}>
-              <SelectTrigger>
+              <SelectTrigger className="text-base h-12">
                 <SelectValue placeholder="Seleccionar actividad" />
               </SelectTrigger>
               <SelectContent>
@@ -101,35 +104,46 @@ function NuevaInscripcionModal({ open, onClose, onSubmit, socios, actividades })
           </div>
 
           {cuposInfo && (
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="text-sm space-y-1">
-                <div className="font-medium">Información de cupos:</div>
-                <div>Cupo máximo: {cuposInfo.cupo_maximo}</div>
-                <div>Inscriptos: {cuposInfo.inscriptos}</div>
-                <div className={cuposInfo.disponibles > 0 ? 'text-green-600' : 'text-red-600'}>
-                  Disponibles: {cuposInfo.disponibles}
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="text-base space-y-2">
+                <div className="font-medium text-blue-900 dark:text-blue-100">📊 Información de cupos:</div>
+                <div className="flex justify-between">
+                  <span>Cupo máximo:</span>
+                  <span className="font-medium">{cuposInfo.cupo_maximo}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Inscriptos:</span>
+                  <span className="font-medium">{cuposInfo.inscriptos}</span>
+                </div>
+                <div className={`flex justify-between font-bold ${cuposInfo.disponibles > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                  <span>Disponibles:</span>
+                  <span>{cuposInfo.disponibles}</span>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="observaciones">Observaciones</Label>
+          <div className="space-y-3">
+            <Label htmlFor="observaciones" className="text-base font-medium text-gray-900 dark:text-gray-100">📝 Observaciones</Label>
             <Input
               id="observaciones"
               value={form.observaciones}
               onChange={(e) => setForm({...form, observaciones: e.target.value})}
               placeholder="Observaciones adicionales"
+              className="text-base h-12"
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <div className="flex flex-col gap-3 pt-4">
             <Button 
               type="submit" 
               disabled={loading || (cuposInfo && cuposInfo.disponibles <= 0)}
+              className="w-full text-base py-4 h-auto font-medium"
             >
-              {loading ? 'Inscribiendo...' : 'Inscribir'}
+              {loading ? '⏳ Inscribiendo...' : '📝 Inscribir'}
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose} className="w-full text-base py-4 h-auto font-medium">
+              ❌ Cancelar
             </Button>
           </div>
         </form>
@@ -157,9 +171,7 @@ function InscripcionesSection() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    fetchInscripciones();
-  }, [filtroEstado, filtroActividad]);
+  const [inscripcionesOriginales, setInscripcionesOriginales] = useState([]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -180,6 +192,7 @@ function InscripcionesSection() {
         actividadesRes.json()
       ]);
 
+      setInscripcionesOriginales(inscripcionesData);
       setInscripciones(inscripcionesData);
       setSocios(sociosData);
       setActividades(actividadesData);
@@ -191,20 +204,22 @@ function InscripcionesSection() {
     setLoading(false);
   };
 
-  const fetchInscripciones = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (filtroEstado !== 'todas') params.append('estado', filtroEstado);
-      if (filtroActividad !== 'todas') params.append('actividad_id', filtroActividad);
-      
-      const res = await fetch(`${apiUrl}/inscripciones?${params}`);
-      if (!res.ok) throw new Error('Error al cargar inscripciones');
-      const data = await res.json();
-      setInscripciones(data);
-    } catch (err) {
-      console.error('Error:', err);
+  // Filtrar inscripciones localmente
+  useEffect(() => {
+    let inscripcionesFiltradas = inscripcionesOriginales;
+
+    // Filtrar por estado
+    if (filtroEstado !== 'todas') {
+      inscripcionesFiltradas = inscripcionesFiltradas.filter(inscripcion => inscripcion.estado === filtroEstado);
     }
-  };
+
+    // Filtrar por actividad
+    if (filtroActividad !== 'todas') {
+      inscripcionesFiltradas = inscripcionesFiltradas.filter(inscripcion => inscripcion.actividad_id.toString() === filtroActividad);
+    }
+
+    setInscripciones(inscripcionesFiltradas);
+  }, [filtroEstado, filtroActividad, inscripcionesOriginales]);
 
   const handleCreateInscripcion = async (form) => {
     try {
@@ -215,6 +230,7 @@ function InscripcionesSection() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al crear inscripción');
+      setInscripcionesOriginales(prev => [...prev, data]);
       setInscripciones(prev => [...prev, data]);
       setModalOpen(false);
       toast.success('Inscripción creada con éxito');
@@ -237,6 +253,7 @@ function InscripcionesSection() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al cambiar estado');
+      setInscripcionesOriginales(prev => prev.map(i => i.id === data.id ? data : i));
       setInscripciones(prev => prev.map(i => i.id === data.id ? data : i));
       toast.success('Estado actualizado con éxito');
     } catch (err) {
@@ -252,6 +269,7 @@ function InscripcionesSection() {
         const data = await res.json();
         throw new Error(data.error || 'Error al eliminar');
       }
+      setInscripcionesOriginales(prev => prev.filter(i => i.id !== id));
       setInscripciones(prev => prev.filter(i => i.id !== id));
       toast.success('Inscripción eliminada');
     } catch (err) {
@@ -277,156 +295,181 @@ function InscripcionesSection() {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Gestión de Inscripciones</h2>
-        <Button onClick={() => setModalOpen(true)} className="bg-[#7ed6a7] hover:bg-[#6bc495] text-white">
-          + Nueva Inscripción
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+      <div className="flex flex-col gap-4">
+        <h2 className="text-xl font-bold text-center">📝 Gestión de Inscripciones</h2>
+        <Button 
+          onClick={() => setModalOpen(true)} 
+          className="w-full text-lg py-4 h-auto font-bold bg-green-600 hover:bg-green-700 text-white"
+        >
+          ➕ Nueva Inscripción
         </Button>
       </div>
 
-      {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white dark:bg-[#23272b] rounded-lg shadow">
-        <div className="flex-1">
-          <Label htmlFor="filtroEstado">Estado</Label>
-          <Select value={filtroEstado} onValueChange={setFiltroEstado}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todas las inscripciones" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todas">Todas las inscripciones</SelectItem>
-              <SelectItem value="activa">Activas</SelectItem>
-              <SelectItem value="inactiva">Inactivas</SelectItem>
-              <SelectItem value="suspendida">Suspendidas</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex-1">
-          <Label htmlFor="filtroActividad">Actividad</Label>
-          <Select value={filtroActividad} onValueChange={setFiltroActividad}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todas las actividades" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todas">Todas las actividades</SelectItem>
-              {actividades.map(actividad => (
-                <SelectItem key={actividad.id} value={actividad.id.toString()}>
-                  {actividad.nombre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-end">
-          <Button 
-            variant="outline" 
-            onClick={fetchInscripciones}
-            className="w-full"
-          >
-            Buscar
-          </Button>
+      {/* Filtros súper simples para usuarios mayores */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="filtroEstado" className="text-base font-medium text-gray-900 dark:text-gray-100 block mb-2">📊 Estado</Label>
+            <Select value={filtroEstado} onValueChange={setFiltroEstado}>
+              <SelectTrigger className="text-base h-12 w-full">
+                <SelectValue placeholder="Todas las inscripciones" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas las inscripciones</SelectItem>
+                <SelectItem value="activa">✅ Activas</SelectItem>
+                <SelectItem value="inactiva">⏸️ Inactivas</SelectItem>
+                <SelectItem value="suspendida">🚫 Suspendidas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="filtroActividad" className="text-base font-medium text-gray-900 dark:text-gray-100 block mb-2">🏃‍♂️ Actividad</Label>
+            <Select value={filtroActividad} onValueChange={setFiltroActividad}>
+              <SelectTrigger className="text-base h-12 w-full">
+                <SelectValue placeholder="Todas las actividades" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas las actividades</SelectItem>
+                {actividades.map(actividad => (
+                  <SelectItem key={actividad.id} value={actividad.id.toString()}>
+                    {actividad.nombre}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      {/* Lista de inscripciones compacta */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+      {/* Vista móvil - Solo tarjetas */}
+      <div className="block lg:hidden space-y-3">
         {inscripciones.length === 0 ? (
-          <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-[#23272b] rounded-lg">
-            No se encontraron inscripciones
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg">
+            <div className="text-4xl mb-2">📝</div>
+            <div className="text-lg">No se encontraron inscripciones</div>
           </div>
         ) : (
           inscripciones.map(inscripcion => (
-            <Card 
+            <div 
               key={inscripcion.id} 
-              className={`hover:shadow-lg transition-all duration-200 cursor-pointer dark:bg-[#23272b] dark:text-gray-100 ${
-                inscripcionExpandida === inscripcion.id ? 'ring-2 ring-blue-500' : ''
-              }`}
-              onClick={() => setInscripcionExpandida(inscripcionExpandida === inscripcion.id ? null : inscripcion.id)}
+              className="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700"
             >
-              <CardContent className="p-3">
-                {/* Información compacta */}
-                <div className="space-y-1">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
-                        {inscripcion.socio_apellido}, {inscripcion.socio_nombre}
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">
-                        #{inscripcion.numero_socio}
-                      </p>
-                    </div>
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    👤 {inscripcion.socio_apellido}, {inscripcion.socio_nombre}
+                  </div>
+                  <Select 
+                    value={inscripcion.estado} 
+                    onValueChange={(value) => handleChangeEstado(inscripcion.id, value)}
+                    className="w-32"
+                  >
+                    <SelectTrigger className="text-sm h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="activa">✅ Activa</SelectItem>
+                      <SelectItem value="inactiva">⏸️ Inactiva</SelectItem>
+                      <SelectItem value="suspendida">🚫 Suspendida</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2 text-base mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">🆔 Número:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">#{inscripcion.numero_socio}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">🏃‍♂️ Actividad:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{inscripcion.actividad_nombre}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">👨‍🏫 Instructor:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{inscripcion.instructor}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">🕐 Horario:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{inscripcion.horario}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">📅 Días:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{inscripcion.dias_semana}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">💰 Precio:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{formatPrecio(inscripcion.precio)}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">📅 Inscripción:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{inscripcion.fecha_inscripcion?.slice(0, 10)}</span>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <Button 
+                    variant="destructive" 
+                    onClick={() => handleDelete(inscripcion.id)}
+                    className="flex-1 text-base py-3 h-auto font-medium"
+                  >
+                    🗑️ Eliminar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Vista desktop - Solo tabla */}
+      <div className="hidden lg:block">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-2 border-gray-200 dark:border-gray-700">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Socio</TableHead>
+                <TableHead>Actividad</TableHead>
+                <TableHead>Instructor</TableHead>
+                <TableHead>Horario</TableHead>
+                <TableHead>Precio</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {inscripciones.map(inscripcion => (
+                <TableRow key={inscripcion.id}>
+                  <TableCell className="font-medium">{inscripcion.socio_apellido}, {inscripcion.socio_nombre}</TableCell>
+                  <TableCell>{inscripcion.actividad_nombre}</TableCell>
+                  <TableCell>{inscripcion.instructor}</TableCell>
+                  <TableCell>{inscripcion.horario}</TableCell>
+                  <TableCell>{formatPrecio(inscripcion.precio)}</TableCell>
+                  <TableCell>
                     <Select 
                       value={inscripcion.estado} 
                       onValueChange={(value) => handleChangeEstado(inscripcion.id, value)}
-                      onClick={(e) => e.stopPropagation()}
                     >
-                      <SelectTrigger className="w-20 h-5 text-xs">
+                      <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="activa">Activa</SelectItem>
-                        <SelectItem value="inactiva">Inactiva</SelectItem>
-                        <SelectItem value="suspendida">Suspendida</SelectItem>
+                        <SelectItem value="activa">✅ Activa</SelectItem>
+                        <SelectItem value="inactiva">⏸️ Inactiva</SelectItem>
+                        <SelectItem value="suspendida">🚫 Suspendida</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  
-                  <div className="text-xs text-gray-600 dark:text-gray-400 space-y-0.5">
-                    <p className="font-medium">{inscripcion.actividad_nombre}</p>
-                    <p>{inscripcion.horario}</p>
-                    <p>{inscripcion.dias_semana}</p>
-                  </div>
-                  
-                  {/* Información expandida */}
-                  {inscripcionExpandida === inscripcion.id && (
-                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 space-y-1">
-                      <div className="grid grid-cols-1 gap-1 text-xs">
-                        <div className="flex justify-between">
-                          <span className="font-medium text-gray-700 dark:text-gray-300">Instructor:</span>
-                          <span className="text-gray-600 dark:text-gray-400">{inscripcion.instructor}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-gray-700 dark:text-gray-300">Precio:</span>
-                          <span className="text-gray-600 dark:text-gray-400">{formatPrecio(inscripcion.precio)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-gray-700 dark:text-gray-300">Inscripción:</span>
-                          <span className="text-gray-600 dark:text-gray-400">{inscripcion.fecha_inscripcion?.slice(0, 10)}</span>
-                        </div>
-                        {inscripcion.fecha_baja && (
-                          <div className="flex justify-between">
-                            <span className="font-medium text-gray-700 dark:text-gray-300">Fecha de baja:</span>
-                            <span className="text-gray-600 dark:text-gray-400">{inscripcion.fecha_baja?.slice(0, 10)}</span>
-                          </div>
-                        )}
-                        {inscripcion.observaciones && (
-                          <div className="flex justify-between">
-                            <span className="font-medium text-gray-700 dark:text-gray-300">Observaciones:</span>
-                            <span className="text-gray-600 dark:text-gray-400 text-right truncate ml-2">{inscripcion.observaciones}</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Botón de acción */}
-                      <div className="flex gap-1 pt-1" onClick={(e) => e.stopPropagation()}>
-                        <Button 
-                          size="sm" 
-                          variant="destructive" 
-                          onClick={() => handleDelete(inscripcion.id)}
-                          className="w-full text-xs h-6"
-                        >
-                          Eliminar
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
+                  </TableCell>
+                  <TableCell>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(inscripcion.id)}>
+                      🗑️ Eliminar
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <NuevaInscripcionModal

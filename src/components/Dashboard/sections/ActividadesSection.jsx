@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -46,68 +46,78 @@ function NuevaActividadModal({ open, onClose, onSubmit, initialData, modo }) {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-w-[95vw] max-h-[90vh] overflow-y-auto mx-auto my-auto">
         <DialogHeader>
-          <DialogTitle>{modo === 'editar' ? 'Editar Actividad' : 'Nueva Actividad'}</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">
+            {modo === 'editar' ? '✏️ Editar Actividad' : '🏃‍♂️ Nueva Actividad'}
+          </DialogTitle>
+          <DialogDescription className="text-base">
+            {modo === 'editar' ? 'Modificá los datos de la actividad.' : 'Completá los datos para registrar una nueva actividad.'}
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre*</Label>
+            <div className="space-y-3">
+              <Label htmlFor="nombre" className="text-base font-medium text-gray-900 dark:text-gray-100">🏃‍♂️ Nombre*</Label>
               <Input
                 id="nombre"
                 value={form.nombre}
                 onChange={(e) => setForm({...form, nombre: e.target.value})}
                 placeholder="Ej: Fútbol"
                 required
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="instructor">Instructor*</Label>
+            <div className="space-y-3">
+              <Label htmlFor="instructor" className="text-base font-medium text-gray-900 dark:text-gray-100">👨‍🏫 Instructor*</Label>
               <Input
                 id="instructor"
                 value={form.instructor}
                 onChange={(e) => setForm({...form, instructor: e.target.value})}
                 placeholder="Nombre del instructor"
                 required
+                className="text-base h-12"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="descripcion">Descripción</Label>
+          <div className="space-y-3">
+            <Label htmlFor="descripcion" className="text-base font-medium text-gray-900 dark:text-gray-100">📝 Descripción</Label>
             <Input
               id="descripcion"
               value={form.descripcion}
               onChange={(e) => setForm({...form, descripcion: e.target.value})}
               placeholder="Descripción de la actividad"
+              className="text-base h-12"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="horario">Horario*</Label>
+            <div className="space-y-3">
+              <Label htmlFor="horario" className="text-base font-medium text-gray-900 dark:text-gray-100">🕐 Horario*</Label>
               <Input
                 id="horario"
                 value={form.horario}
                 onChange={(e) => setForm({...form, horario: e.target.value})}
                 placeholder="Ej: 18:00-20:00"
                 required
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="dias_semana">Días de Semana*</Label>
+            <div className="space-y-3">
+              <Label htmlFor="dias_semana" className="text-base font-medium text-gray-900 dark:text-gray-100">📅 Días de Semana*</Label>
               <Input
                 id="dias_semana"
                 value={form.dias_semana}
                 onChange={(e) => setForm({...form, dias_semana: e.target.value})}
                 placeholder="Ej: Lunes, Miércoles, Viernes"
                 required
+                className="text-base h-12"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="cupo_maximo">Cupo Máximo</Label>
+            <div className="space-y-3">
+              <Label htmlFor="cupo_maximo" className="text-base font-medium text-gray-900 dark:text-gray-100">👥 Cupo Máximo</Label>
               <Input
                 id="cupo_maximo"
                 type="number"
@@ -115,10 +125,11 @@ function NuevaActividadModal({ open, onClose, onSubmit, initialData, modo }) {
                 onChange={(e) => setForm({...form, cupo_maximo: e.target.value})}
                 placeholder="Ej: 25"
                 min="1"
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="precio">Precio ($)</Label>
+            <div className="space-y-3">
+              <Label htmlFor="precio" className="text-base font-medium text-gray-900 dark:text-gray-100">💰 Precio ($)</Label>
               <Input
                 id="precio"
                 type="number"
@@ -127,19 +138,20 @@ function NuevaActividadModal({ open, onClose, onSubmit, initialData, modo }) {
                 onChange={(e) => setForm({...form, precio: e.target.value})}
                 placeholder="Ej: 5000.00"
                 min="0"
+                className="text-base h-12"
               />
             </div>
             {modo === 'editar' && (
-              <div className="space-y-2">
-                <Label htmlFor="estado">Estado</Label>
+              <div className="space-y-3">
+                <Label htmlFor="estado" className="text-base font-medium text-gray-900 dark:text-gray-100">📊 Estado</Label>
                 <Select value={form.estado} onValueChange={(value) => setForm({...form, estado: value})}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-base h-12">
                     <SelectValue placeholder="Seleccionar estado" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="activa">Activa</SelectItem>
-                    <SelectItem value="inactiva">Inactiva</SelectItem>
-                    <SelectItem value="suspendida">Suspendida</SelectItem>
+                    <SelectItem value="activa">✅ Activa</SelectItem>
+                    <SelectItem value="inactiva">⏸️ Inactiva</SelectItem>
+                    <SelectItem value="suspendida">🚫 Suspendida</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -147,30 +159,34 @@ function NuevaActividadModal({ open, onClose, onSubmit, initialData, modo }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="fecha_inicio">Fecha de Inicio</Label>
+            <div className="space-y-3">
+              <Label htmlFor="fecha_inicio" className="text-base font-medium text-gray-900 dark:text-gray-100">📅 Fecha de Inicio</Label>
               <Input
                 id="fecha_inicio"
                 type="date"
                 value={form.fecha_inicio}
                 onChange={(e) => setForm({...form, fecha_inicio: e.target.value})}
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="fecha_fin">Fecha de Fin</Label>
+            <div className="space-y-3">
+              <Label htmlFor="fecha_fin" className="text-base font-medium text-gray-900 dark:text-gray-100">📅 Fecha de Fin</Label>
               <Input
                 id="fecha_fin"
                 type="date"
                 value={form.fecha_fin}
                 onChange={(e) => setForm({...form, fecha_fin: e.target.value})}
+                className="text-base h-12"
               />
             </div>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Guardando...' : (modo === 'editar' ? 'Actualizar' : 'Crear')}
+          <div className="flex flex-col gap-3 pt-4">
+            <Button type="submit" className="w-full text-base py-4 h-auto font-medium" disabled={loading}>
+              {loading ? '⏳ Guardando...' : (modo === 'editar' ? '💾 Guardar Cambios' : '💾 Crear Actividad')}
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose} className="w-full text-base py-4 h-auto font-medium">
+              ❌ Cancelar
             </Button>
           </div>
         </form>
@@ -194,20 +210,19 @@ function ActividadesSection() {
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  const [actividadesOriginales, setActividadesOriginales] = useState([]);
+
   useEffect(() => {
     fetchActividades();
-  }, [filtroEstado, filtroBuscar]);
+  }, []);
 
   const fetchActividades = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (filtroEstado !== 'todas') params.append('estado', filtroEstado);
-      if (filtroBuscar.trim()) params.append('buscar', filtroBuscar.trim());
-      
-      const res = await fetch(`${apiUrl}/actividades?${params}`);
+      const res = await fetch(`${apiUrl}/actividades`);
       if (!res.ok) throw new Error('Error al cargar actividades');
       const data = await res.json();
+      setActividadesOriginales(data);
       setActividades(data);
       setError('');
     } catch (err) {
@@ -216,6 +231,28 @@ function ActividadesSection() {
     }
     setLoading(false);
   };
+
+  // Filtrar actividades localmente
+  useEffect(() => {
+    let actividadesFiltradas = actividadesOriginales;
+
+    // Filtrar por estado
+    if (filtroEstado !== 'todas') {
+      actividadesFiltradas = actividadesFiltradas.filter(actividad => actividad.estado === filtroEstado);
+    }
+
+    // Filtrar por búsqueda
+    if (filtroBuscar.trim()) {
+      const busqueda = filtroBuscar.toLowerCase();
+      actividadesFiltradas = actividadesFiltradas.filter(actividad => 
+        actividad.nombre.toLowerCase().includes(busqueda) ||
+        actividad.descripcion.toLowerCase().includes(busqueda) ||
+        actividad.instructor.toLowerCase().includes(busqueda)
+      );
+    }
+
+    setActividades(actividadesFiltradas);
+  }, [filtroEstado, filtroBuscar, actividadesOriginales]);
 
   const handleSubmit = modo === 'crear' ? handleCreateActividad : handleEditActividad;
 
@@ -299,140 +336,159 @@ function ActividadesSection() {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Gestión de Actividades</h2>
-        <Button onClick={() => handleOpenModal()} className="bg-[#7ed6a7] hover:bg-[#6bc495] text-white">
-          + Agregar Actividad
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+      <div className="flex flex-col gap-4">
+        <h2 className="text-xl font-bold text-center">🏃‍♂️ Gestión de Actividades</h2>
+        <Button 
+          onClick={() => handleOpenModal()} 
+          className="w-full text-lg py-4 h-auto font-bold bg-green-600 hover:bg-green-700 text-white"
+        >
+          ➕ Nueva Actividad
         </Button>
       </div>
 
-      {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white dark:bg-[#23272b] rounded-lg shadow">
-        <div className="flex-1">
-          <Label htmlFor="filtroEstado">Estado</Label>
-          <Select value={filtroEstado} onValueChange={setFiltroEstado}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todas las actividades" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todas">Todas las actividades</SelectItem>
-              <SelectItem value="activa">Activas</SelectItem>
-              <SelectItem value="inactiva">Inactivas</SelectItem>
-              <SelectItem value="suspendida">Suspendidas</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex-1">
-          <Label htmlFor="filtroBuscar">Buscar</Label>
-          <Input
-            id="filtroBuscar"
-            placeholder="Nombre, descripción o instructor..."
-            value={filtroBuscar}
-            onChange={(e) => setFiltroBuscar(e.target.value)}
-          />
-        </div>
-
-        <div className="flex items-end">
-          <Button 
-            variant="outline" 
-            onClick={fetchActividades}
-            className="w-full"
-          >
-            Buscar
-          </Button>
+      {/* Filtros súper simples para usuarios mayores */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="filtroBuscar" className="text-base font-medium text-gray-900 dark:text-gray-100 block mb-2">🔍 Buscar actividad</Label>
+            <Input
+              id="filtroBuscar"
+              placeholder="Escribir nombre, descripción o instructor..."
+              value={filtroBuscar}
+              onChange={(e) => setFiltroBuscar(e.target.value)}
+              className="text-base h-12 w-full"
+            />
+          </div>
+          <div>
+            <Label htmlFor="filtroEstado" className="text-base font-medium text-gray-900 dark:text-gray-100 block mb-2">📊 Estado</Label>
+            <Select value={filtroEstado} onValueChange={setFiltroEstado}>
+              <SelectTrigger className="text-base h-12 w-full">
+                <SelectValue placeholder="Todas las actividades" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas las actividades</SelectItem>
+                <SelectItem value="activa">✅ Activas</SelectItem>
+                <SelectItem value="inactiva">⏸️ Inactivas</SelectItem>
+                <SelectItem value="suspendida">🚫 Suspendidas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      {/* Lista de actividades compacta */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+      {/* Vista móvil - Solo tarjetas */}
+      <div className="block lg:hidden space-y-3">
         {actividades.length === 0 ? (
-          <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-[#23272b] rounded-lg">
-            No se encontraron actividades
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg">
+            <div className="text-4xl mb-2">🏃‍♂️</div>
+            <div className="text-lg">No se encontraron actividades</div>
           </div>
         ) : (
           actividades.map(actividad => (
-            <Card 
+            <div 
               key={actividad.id} 
-              className={`hover:shadow-lg transition-all duration-200 cursor-pointer dark:bg-[#23272b] dark:text-gray-100 ${
-                actividadExpandida === actividad.id ? 'ring-2 ring-blue-500' : ''
-              }`}
-              onClick={() => setActividadExpandida(actividadExpandida === actividad.id ? null : actividad.id)}
+              className="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700"
             >
-              <CardContent className="p-3">
-                {/* Información compacta */}
-                <div className="space-y-1">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
-                        {actividad.nombre}
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">
-                        {actividad.instructor}
-                      </p>
-                    </div>
-                    <Badge className={`text-xs px-2 py-1 ${getEstadoBadge(actividad.estado)}`}>
-                      {actividad.estado}
-                    </Badge>
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    🏃‍♂️ {actividad.nombre}
                   </div>
-                  
-                  <div className="text-xs text-gray-600 dark:text-gray-400 space-y-0.5">
-                    <p>{actividad.horario}</p>
-                    <p>{actividad.dias_semana}</p>
-                    <p className="font-medium">{formatPrecio(actividad.precio)}</p>
+                  <Badge className={`text-sm px-3 py-1 ${getEstadoBadge(actividad.estado)}`}>
+                    {actividad.estado === 'activa' ? '✅ Activa' : actividad.estado === 'inactiva' ? '⏸️ Inactiva' : '🚫 Suspendida'}
+                  </Badge>
+                </div>
+                
+                <div className="space-y-2 text-base mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">👨‍🏫 Instructor:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{actividad.instructor}</span>
                   </div>
-                  
-                  {/* Información expandida */}
-                  {actividadExpandida === actividad.id && (
-                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 space-y-1">
-                      <div className="grid grid-cols-1 gap-1 text-xs">
-                        {actividad.descripcion && (
-                          <div className="flex justify-between">
-                            <span className="font-medium text-gray-700 dark:text-gray-300">Descripción:</span>
-                            <span className="text-gray-600 dark:text-gray-400 text-right truncate ml-2">{actividad.descripcion}</span>
-                          </div>
-                        )}
-                        <div className="flex justify-between">
-                          <span className="font-medium text-gray-700 dark:text-gray-300">Cupo:</span>
-                          <span className="text-gray-600 dark:text-gray-400">
-                            {actividad.cupo_actual || 0} / {actividad.cupo_maximo}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-gray-700 dark:text-gray-300">Período:</span>
-                          <span className="text-gray-600 dark:text-gray-400">
-                            {actividad.fecha_inicio?.slice(0, 10)} - {actividad.fecha_fin?.slice(0, 10)}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Botones de acción */}
-                      <div className="flex gap-1 pt-1" onClick={(e) => e.stopPropagation()}>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => handleOpenModal(actividad)}
-                          className="flex-1 text-xs h-6"
-                        >
-                          Editar
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive" 
-                          onClick={() => handleDelete(actividad.id)}
-                          className="flex-1 text-xs h-6"
-                        >
-                          Eliminar
-                        </Button>
-                      </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">🕐 Horario:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{actividad.horario}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">📅 Días:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{actividad.dias_semana}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">💰 Precio:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{formatPrecio(actividad.precio)}</span>
+                  </div>
+                  {actividad.descripcion && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-gray-600 dark:text-gray-400">📝 Descripción:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{actividad.descripcion}</span>
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+                
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={() => handleOpenModal(actividad)}
+                    className="flex-1 text-base py-3 h-auto font-medium"
+                  >
+                    ✏️ Editar
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    onClick={() => handleDelete(actividad.id)}
+                    className="flex-1 text-base py-3 h-auto font-medium"
+                  >
+                    🗑️ Eliminar
+                  </Button>
+                </div>
+              </div>
+            </div>
           ))
         )}
+      </div>
+
+      {/* Vista desktop - Solo tabla */}
+      <div className="hidden lg:block">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-2 border-gray-200 dark:border-gray-700">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Actividad</TableHead>
+                <TableHead>Instructor</TableHead>
+                <TableHead>Horario</TableHead>
+                <TableHead>Días</TableHead>
+                <TableHead>Precio</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {actividades.map(actividad => (
+                <TableRow key={actividad.id}>
+                  <TableCell className="font-medium">{actividad.nombre}</TableCell>
+                  <TableCell>{actividad.instructor}</TableCell>
+                  <TableCell>{actividad.horario}</TableCell>
+                  <TableCell>{actividad.dias_semana}</TableCell>
+                  <TableCell>{formatPrecio(actividad.precio)}</TableCell>
+                  <TableCell>
+                    <Badge className={`text-sm px-3 py-1 ${getEstadoBadge(actividad.estado)}`}>
+                      {actividad.estado === 'activa' ? '✅ Activa' : actividad.estado === 'inactiva' ? '⏸️ Inactiva' : '🚫 Suspendida'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => handleOpenModal(actividad)}>
+                        ✏️ Editar
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(actividad.id)}>
+                        🗑️ Eliminar
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
 

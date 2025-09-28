@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -46,128 +46,144 @@ function NuevoSocioModal({ open, onClose, onSubmit, initialData, modo }) {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-w-[95vw] max-h-[90vh] overflow-y-auto mx-auto my-auto">
         <DialogHeader>
-          <DialogTitle>{modo === 'editar' ? 'Editar Socio' : 'Nuevo Socio'}</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">
+            {modo === 'editar' ? '✏️ Editar Socio' : '👤 Nuevo Socio'}
+          </DialogTitle>
+          <DialogDescription className="text-base">
+            {modo === 'editar' ? 'Modificá los datos del socio.' : 'Completá los datos para registrar un nuevo socio.'}
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="numero_socio">Número de Socio*</Label>
+            <div className="space-y-3">
+              <Label htmlFor="numero_socio" className="text-base font-medium text-gray-900 dark:text-gray-100">🆔 Número de Socio*</Label>
               <Input
                 id="numero_socio"
                 value={form.numero_socio}
                 onChange={(e) => setForm({...form, numero_socio: e.target.value})}
                 placeholder="Ej: S001"
                 required
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="dni">DNI*</Label>
+            <div className="space-y-3">
+              <Label htmlFor="dni" className="text-base font-medium text-gray-900 dark:text-gray-100">📄 DNI*</Label>
               <Input
                 id="dni"
                 value={form.dni}
                 onChange={(e) => setForm({...form, dni: e.target.value})}
                 placeholder="Ej: 12345678"
                 required
+                className="text-base h-12"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre*</Label>
+            <div className="space-y-3">
+              <Label htmlFor="nombre" className="text-base font-medium text-gray-900 dark:text-gray-100">👤 Nombre*</Label>
               <Input
                 id="nombre"
                 value={form.nombre}
                 onChange={(e) => setForm({...form, nombre: e.target.value})}
                 placeholder="Nombre del socio"
                 required
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="apellido">Apellido*</Label>
+            <div className="space-y-3">
+              <Label htmlFor="apellido" className="text-base font-medium text-gray-900 dark:text-gray-100">👤 Apellido*</Label>
               <Input
                 id="apellido"
                 value={form.apellido}
                 onChange={(e) => setForm({...form, apellido: e.target.value})}
                 placeholder="Apellido del socio"
                 required
+                className="text-base h-12"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="telefono">Teléfono</Label>
+            <div className="space-y-3">
+              <Label htmlFor="telefono" className="text-base font-medium text-gray-900 dark:text-gray-100">📞 Teléfono</Label>
               <Input
                 id="telefono"
                 value={form.telefono}
                 onChange={(e) => setForm({...form, telefono: e.target.value})}
                 placeholder="Ej: 11-1234-5678"
+                className="text-base h-12"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+            <div className="space-y-3">
+              <Label htmlFor="email" className="text-base font-medium text-gray-900 dark:text-gray-100">📧 Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({...form, email: e.target.value})}
                 placeholder="email@ejemplo.com"
+                className="text-base h-12"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="fecha_nacimiento">Fecha de Nacimiento</Label>
+            <div className="space-y-3">
+              <Label htmlFor="fecha_nacimiento" className="text-base font-medium text-gray-900 dark:text-gray-100">🎂 Fecha de Nacimiento</Label>
               <Input
                 id="fecha_nacimiento"
                 type="date"
                 value={form.fecha_nacimiento}
                 onChange={(e) => setForm({...form, fecha_nacimiento: e.target.value})}
+                className="text-base h-12"
               />
             </div>
             {modo === 'editar' && (
-              <div className="space-y-2">
-                <Label htmlFor="estado">Estado</Label>
+              <div className="space-y-3">
+                <Label htmlFor="estado" className="text-base font-medium text-gray-900 dark:text-gray-100">📊 Estado</Label>
                 <Select value={form.estado} onValueChange={(value) => setForm({...form, estado: value})}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-base h-12">
                     <SelectValue placeholder="Seleccionar estado" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="activo">Activo</SelectItem>
-                    <SelectItem value="inactivo">Inactivo</SelectItem>
-                    <SelectItem value="suspendido">Suspendido</SelectItem>
+                    <SelectItem value="activo">✅ Activo</SelectItem>
+                    <SelectItem value="inactivo">⏸️ Inactivo</SelectItem>
+                    <SelectItem value="suspendido">🚫 Suspendido</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="direccion">Dirección</Label>
+          <div className="space-y-3">
+            <Label htmlFor="direccion" className="text-base font-medium text-gray-900 dark:text-gray-100">🏠 Dirección</Label>
             <Input
               id="direccion"
               value={form.direccion}
               onChange={(e) => setForm({...form, direccion: e.target.value})}
               placeholder="Dirección completa"
+              className="text-base h-12"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="observaciones">Observaciones</Label>
+          <div className="space-y-3">
+            <Label htmlFor="observaciones" className="text-base font-medium text-gray-900 dark:text-gray-100">📝 Observaciones</Label>
             <Input
               id="observaciones"
               value={form.observaciones}
               onChange={(e) => setForm({...form, observaciones: e.target.value})}
               placeholder="Observaciones adicionales"
+              className="text-base h-12"
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Guardando...' : (modo === 'editar' ? 'Actualizar' : 'Crear')}
+          <div className="flex flex-col gap-3 pt-4">
+            <Button type="submit" className="w-full text-base py-4 h-auto font-medium" disabled={loading}>
+              {loading ? '⏳ Guardando...' : (modo === 'editar' ? '💾 Guardar Cambios' : '💾 Crear Socio')}
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose} className="w-full text-base py-4 h-auto font-medium">
+              ❌ Cancelar
             </Button>
           </div>
         </form>
@@ -191,20 +207,19 @@ function SociosSection() {
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  const [sociosOriginales, setSociosOriginales] = useState([]);
+
   useEffect(() => {
     fetchSocios();
-  }, [filtroEstado, filtroBuscar]);
+  }, []);
 
   const fetchSocios = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (filtroEstado !== 'todos') params.append('estado', filtroEstado);
-      if (filtroBuscar.trim()) params.append('buscar', filtroBuscar.trim());
-      
-      const res = await fetch(`${apiUrl}/socios?${params}`);
+      const res = await fetch(`${apiUrl}/socios`);
       if (!res.ok) throw new Error('Error al cargar socios');
       const data = await res.json();
+      setSociosOriginales(data);
       setSocios(data);
       setError('');
     } catch (err) {
@@ -213,6 +228,29 @@ function SociosSection() {
     }
     setLoading(false);
   };
+
+  // Filtrar socios localmente
+  useEffect(() => {
+    let sociosFiltrados = sociosOriginales;
+
+    // Filtrar por estado
+    if (filtroEstado !== 'todos') {
+      sociosFiltrados = sociosFiltrados.filter(socio => socio.estado === filtroEstado);
+    }
+
+    // Filtrar por búsqueda
+    if (filtroBuscar.trim()) {
+      const busqueda = filtroBuscar.toLowerCase();
+      sociosFiltrados = sociosFiltrados.filter(socio => 
+        socio.nombre.toLowerCase().includes(busqueda) ||
+        socio.apellido.toLowerCase().includes(busqueda) ||
+        socio.dni.includes(busqueda) ||
+        socio.numero_socio.toLowerCase().includes(busqueda)
+      );
+    }
+
+    setSocios(sociosFiltrados);
+  }, [filtroEstado, filtroBuscar, sociosOriginales]);
 
   const handleSubmit = modo === 'crear' ? handleCreateSocio : handleEditSocio;
 
@@ -291,141 +329,155 @@ function SociosSection() {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Gestión de Socios</h2>
-        <Button onClick={() => handleOpenModal()} className="bg-[#7ed6a7] hover:bg-[#6bc495] text-white">
-          + Agregar Socio
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+      <div className="flex flex-col gap-4">
+        <h2 className="text-xl font-bold text-center">👥 Gestión de Socios</h2>
+        <Button 
+          onClick={() => handleOpenModal()} 
+          className="w-full text-lg py-4 h-auto font-bold bg-green-600 hover:bg-green-700 text-white"
+        >
+          ➕ Nuevo Socio
         </Button>
       </div>
 
-      {/* Filtros */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white dark:bg-[#23272b] rounded-lg shadow">
-        <div className="flex-1">
-          <Label htmlFor="filtroEstado">Estado</Label>
-          <Select value={filtroEstado} onValueChange={setFiltroEstado}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todos los estados" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos los estados</SelectItem>
-              <SelectItem value="activo">Activos</SelectItem>
-              <SelectItem value="inactivo">Inactivos</SelectItem>
-              <SelectItem value="suspendido">Suspendidos</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex-1">
-          <Label htmlFor="filtroBuscar">Buscar</Label>
-          <Input
-            id="filtroBuscar"
-            placeholder="Nombre, apellido o DNI..."
-            value={filtroBuscar}
-            onChange={(e) => setFiltroBuscar(e.target.value)}
-          />
-        </div>
-
-        <div className="flex items-end">
-          <Button 
-            variant="outline" 
-            onClick={fetchSocios}
-            className="w-full"
-          >
-            Buscar
-          </Button>
+      {/* Filtros súper simples para usuarios mayores */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="filtroBuscar" className="text-base font-medium text-gray-900 dark:text-gray-100 block mb-2">🔍 Buscar socio</Label>
+            <Input
+              id="filtroBuscar"
+              placeholder="Escribir nombre, apellido o DNI..."
+              value={filtroBuscar}
+              onChange={(e) => setFiltroBuscar(e.target.value)}
+              className="text-base h-12 w-full"
+            />
+          </div>
+          <div>
+            <Label htmlFor="filtroEstado" className="text-base font-medium text-gray-900 dark:text-gray-100 block mb-2">📊 Estado</Label>
+            <Select value={filtroEstado} onValueChange={setFiltroEstado}>
+              <SelectTrigger className="text-base h-12 w-full">
+                <SelectValue placeholder="Todos los estados" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos los estados</SelectItem>
+                <SelectItem value="activo">✅ Activos</SelectItem>
+                <SelectItem value="inactivo">⏸️ Inactivos</SelectItem>
+                <SelectItem value="suspendido">🚫 Suspendidos</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      {/* Lista de socios compacta */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+      {/* Vista móvil - Solo tarjetas */}
+      <div className="block lg:hidden space-y-3">
         {socios.length === 0 ? (
-          <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-[#23272b] rounded-lg">
-            No se encontraron socios
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg">
+            <div className="text-4xl mb-2">👥</div>
+            <div className="text-lg">No se encontraron socios</div>
           </div>
         ) : (
           socios.map(socio => (
-            <Card 
+            <div 
               key={socio.id} 
-              className={`hover:shadow-lg transition-all duration-200 cursor-pointer dark:bg-[#23272b] dark:text-gray-100 ${
-                socioExpandido === socio.id ? 'ring-2 ring-blue-500' : ''
-              }`}
-              onClick={() => setSocioExpandido(socioExpandido === socio.id ? null : socio.id)}
+              className="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700"
             >
-              <CardContent className="p-3">
-                {/* Información compacta */}
-                <div className="space-y-1">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
-                        {socio.apellido}, {socio.nombre}
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">
-                        #{socio.numero_socio}
-                      </p>
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    👤 {socio.apellido}, {socio.nombre}
+                  </div>
+                  <Badge className={`text-sm px-3 py-1 ${getEstadoBadge(socio.estado)}`}>
+                    {socio.estado === 'activo' ? '✅ Activo' : socio.estado === 'inactivo' ? '⏸️ Inactivo' : '🚫 Suspendido'}
+                  </Badge>
+                </div>
+                
+                <div className="space-y-2 text-base mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">🆔 Número:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">#{socio.numero_socio}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">📄 DNI:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{socio.dni}</span>
+                  </div>
+                  {socio.telefono && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600 dark:text-gray-400">📞 Teléfono:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{socio.telefono}</span>
                     </div>
-                    <Badge className={`text-xs px-2 py-1 ${getEstadoBadge(socio.estado)}`}>
-                      {socio.estado}
-                    </Badge>
-                  </div>
-                  
-                  <div className="text-xs text-gray-600 dark:text-gray-400 space-y-0.5">
-                    <p>DNI: {socio.dni}</p>
-                    {socio.telefono && <p>Tel: {socio.telefono}</p>}
-                  </div>
-                  
-                  {/* Información expandida */}
-                  {socioExpandido === socio.id && (
-                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 space-y-1">
-                      <div className="grid grid-cols-1 gap-1 text-xs">
-                        <div className="flex justify-between">
-                          <span className="font-medium text-gray-700 dark:text-gray-300">Email:</span>
-                          <span className="text-gray-600 dark:text-gray-400 truncate ml-2">{socio.email || '-'}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-gray-700 dark:text-gray-300">Ingreso:</span>
-                          <span className="text-gray-600 dark:text-gray-400">{socio.fecha_ingreso?.slice(0, 10)}</span>
-                        </div>
-                        {socio.direccion && (
-                          <div className="flex justify-between">
-                            <span className="font-medium text-gray-700 dark:text-gray-300">Dirección:</span>
-                            <span className="text-gray-600 dark:text-gray-400 text-right truncate ml-2">{socio.direccion}</span>
-                          </div>
-                        )}
-                        {socio.observaciones && (
-                          <div className="flex justify-between">
-                            <span className="font-medium text-gray-700 dark:text-gray-300">Observaciones:</span>
-                            <span className="text-gray-600 dark:text-gray-400 text-right truncate ml-2">{socio.observaciones}</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Botones de acción */}
-                      <div className="flex gap-1 pt-1" onClick={(e) => e.stopPropagation()}>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => handleOpenModal(socio)}
-                          className="flex-1 text-xs h-6"
-                        >
-                          Editar
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive" 
-                          onClick={() => handleDelete(socio.id)}
-                          className="flex-1 text-xs h-6"
-                        >
-                          Eliminar
-                        </Button>
-                      </div>
+                  )}
+                  {socio.email && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600 dark:text-gray-400">📧 Email:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{socio.email}</span>
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+                
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={() => handleOpenModal(socio)}
+                    className="flex-1 text-base py-3 h-auto font-medium"
+                  >
+                    ✏️ Editar
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    onClick={() => handleDelete(socio.id)}
+                    className="flex-1 text-base py-3 h-auto font-medium"
+                  >
+                    🗑️ Eliminar
+                  </Button>
+                </div>
+              </div>
+            </div>
           ))
         )}
+      </div>
+
+      {/* Vista desktop - Solo tabla */}
+      <div className="hidden lg:block">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-2 border-gray-200 dark:border-gray-700">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Número</TableHead>
+                <TableHead>DNI</TableHead>
+                <TableHead>Teléfono</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {socios.map(socio => (
+                <TableRow key={socio.id}>
+                  <TableCell className="font-medium">{socio.apellido}, {socio.nombre}</TableCell>
+                  <TableCell>#{socio.numero_socio}</TableCell>
+                  <TableCell>{socio.dni}</TableCell>
+                  <TableCell>{socio.telefono || '-'}</TableCell>
+                  <TableCell>
+                    <Badge className={`text-sm px-3 py-1 ${getEstadoBadge(socio.estado)}`}>
+                      {socio.estado === 'activo' ? '✅ Activo' : socio.estado === 'inactivo' ? '⏸️ Inactivo' : '🚫 Suspendido'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => handleOpenModal(socio)}>
+                        ✏️ Editar
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(socio.id)}>
+                        🗑️ Eliminar
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <NuevoSocioModal
