@@ -30,6 +30,10 @@ function MantenimientoSection() {
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [loadingEstadoId, setLoadingEstadoId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editTarea, setEditTarea] = useState(null);
+  const [editForm, setEditForm] = useState({ fecha: '', descripcion: '', responsable: '', cancha: '' });
+  const [editEstablecimientoSeleccionado, setEditEstablecimientoSeleccionado] = useState('');
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -103,6 +107,75 @@ function MantenimientoSection() {
     setLoadingEstadoId(null);
   };
 
+  const handleEdit = (tarea) => {
+    setEditTarea(tarea);
+    setEditForm({
+      fecha: tarea.fecha.slice(0, 10),
+      descripcion: tarea.descripcion,
+      responsable: tarea.responsable || '',
+      cancha: tarea.cancha
+    });
+    setEditEstablecimientoSeleccionado(tarea.cancha);
+    setEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editForm.fecha || !editForm.descripcion || !editForm.cancha) return;
+    setLoadingBtn(true);
+    try {
+      const res = await fetch(`${apiUrl}/mantenimientos/${editTarea.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm),
+      });
+      if (!res.ok) throw new Error('Error al actualizar tarea');
+      const actualizada = await res.json();
+      setTareas(prev => prev.map(t => t.id === editTarea.id ? actualizada : t));
+      setEditModalOpen(false);
+      setEditTarea(null);
+      setEditForm({ fecha: '', descripcion: '', responsable: '', cancha: '' });
+      setEditEstablecimientoSeleccionado('');
+      setError('');
+      toast.success('Tarea actualizada con éxito');
+    } catch (err) {
+      toast.error('Error al actualizar tarea');
+    }
+    setLoadingBtn(false);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta tarea?')) return;
+    try {
+      const res = await fetch(`${apiUrl}/mantenimientos/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Error al eliminar tarea');
+      setTareas(prev => prev.filter(t => t.id !== id));
+      toast.success('Tarea eliminada con éxito');
+    } catch (err) {
+      toast.error('Error al eliminar tarea');
+    }
+  };
+
+  const reabrirTarea = async (id) => {
+    setLoadingEstadoId(id);
+    try {
+      const res = await fetch(`${apiUrl}/mantenimientos/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: 'pendiente' }),
+      });
+      if (!res.ok) throw new Error('Error al reabrir tarea');
+      const actualizada = await res.json();
+      setTareas(prev => prev.map(t => t.id === id ? actualizada : t));
+      toast.success('Tarea reabierta con éxito');
+    } catch (err) {
+      toast.error('Error al reabrir tarea');
+    }
+    setLoadingEstadoId(null);
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       <div className="flex flex-col gap-4">
@@ -156,8 +229,8 @@ function MantenimientoSection() {
         <div className="text-red-500 text-center py-8">{typeof error === 'string' ? error : 'Ocurrió un error inesperado.'}</div>
       ) : (
         <>
-          {/* Tarjetas simples para usuarios mayores */}
-          <div className="space-y-3">
+          {/* Vista móvil - Solo tarjetas */}
+          <div className="block lg:hidden space-y-3">
             {tareas.map(t => (
               <div key={t.id} className="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
                 <div className="p-4">
@@ -191,33 +264,68 @@ function MantenimientoSection() {
                     </div>
                   </div>
                   
-                  {/* Botones de acción - Solo si no está finalizada */}
-                  {t.estado !== 'finalizada' && (
-                    <div className="flex gap-3">
-                      {t.estado !== 'en_curso' && (
+                  {/* Botones de acción */}
+                  <div className="space-y-2">
+                    {t.estado !== 'finalizada' ? (
+                      <div className="flex gap-2">
+                        {t.estado !== 'en_curso' && (
+                          <Button 
+                            variant="secondary" 
+                            onClick={() => cambiarEstado(t.id, 'en_curso')} 
+                            disabled={loadingEstadoId === t.id}
+                            className="flex-1 text-sm py-2 h-auto font-medium"
+                          >
+                            {loadingEstadoId === t.id ? '⏳' : '🔄 En curso'}
+                          </Button>
+                        )}
                         <Button 
-                          variant="secondary" 
-                          onClick={() => cambiarEstado(t.id, 'en_curso')} 
+                          onClick={() => cambiarEstado(t.id, 'finalizada')} 
                           disabled={loadingEstadoId === t.id}
-                          className="flex-1 text-base py-3 h-auto font-medium"
+                          className="flex-1 text-sm py-2 h-auto font-medium"
                         >
-                          {loadingEstadoId === t.id ? '⏳ Cargando...' : '🔄 En curso'}
+                          {loadingEstadoId === t.id ? '⏳' : '✅ Finalizar'}
                         </Button>
-                      )}
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => reabrirTarea(t.id)} 
+                          disabled={loadingEstadoId === t.id}
+                          className="flex-1 text-sm py-2 h-auto font-medium"
+                        >
+                          {loadingEstadoId === t.id ? '⏳' : '🔄 Reabrir'}
+                        </Button>
+                        <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-2">
+                          ✅ Completada
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Botones de edición y eliminación */}
+                    <div className="flex gap-2">
                       <Button 
-                        onClick={() => cambiarEstado(t.id, 'finalizada')} 
-                        disabled={loadingEstadoId === t.id}
-                        className="flex-1 text-base py-3 h-auto font-medium"
+                        variant="outline" 
+                        onClick={() => handleEdit(t)} 
+                        className="flex-1 text-sm py-2 h-auto font-medium"
                       >
-                        {loadingEstadoId === t.id ? '⏳ Cargando...' : '✅ Finalizar'}
+                        ✏️ Editar
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        onClick={() => handleDelete(t.id)} 
+                        className="flex-1 text-sm py-2 h-auto font-medium"
+                      >
+                        🗑️ Eliminar
                       </Button>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
+          {/* Vista desktop - Solo tabla */}
           <div className="hidden lg:block">
             <Table>
               <TableHeader>
@@ -246,28 +354,66 @@ function MantenimientoSection() {
                     <TableCell>{t.responsable || '-'}</TableCell>
                     <TableCell>{t.cancha}</TableCell>
                     <TableCell>
-                      {t.estado !== 'finalizada' && (
-                        <div className="flex gap-2">
-                          {t.estado !== 'en_curso' && (
+                      <div className="flex flex-col gap-1">
+                        {t.estado !== 'finalizada' ? (
+                          <div className="flex gap-1">
+                            {t.estado !== 'en_curso' && (
+                              <Button 
+                                size="sm" 
+                                variant="secondary" 
+                                onClick={() => cambiarEstado(t.id, 'en_curso')} 
+                                disabled={loadingEstadoId === t.id}
+                                className="text-xs px-2 py-1 h-6"
+                              >
+                                {loadingEstadoId === t.id ? '⏳' : '🔄 En curso'}
+                              </Button>
+                            )}
                             <Button 
                               size="sm" 
-                              variant="secondary" 
-                              onClick={() => cambiarEstado(t.id, 'en_curso')} 
+                              variant="default" 
+                              onClick={() => cambiarEstado(t.id, 'finalizada')} 
                               disabled={loadingEstadoId === t.id}
+                              className="text-xs px-2 py-1 h-6"
                             >
-                              {loadingEstadoId === t.id ? 'Cargando...' : 'En curso'}
+                              {loadingEstadoId === t.id ? '⏳' : '✅ Finalizar'}
                             </Button>
-                          )}
+                          </div>
+                        ) : (
+                          <div className="flex gap-1">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => reabrirTarea(t.id)} 
+                              disabled={loadingEstadoId === t.id}
+                              className="text-xs px-2 py-1 h-6"
+                            >
+                              {loadingEstadoId === t.id ? '⏳' : '🔄 Reabrir'}
+                            </Button>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1">
+                              ✅ Completada
+                            </span>
+                          </div>
+                        )}
+                        
+                        <div className="flex gap-1">
                           <Button 
                             size="sm" 
-                            variant="default" 
-                            onClick={() => cambiarEstado(t.id, 'finalizada')} 
-                            disabled={loadingEstadoId === t.id}
+                            variant="outline" 
+                            onClick={() => handleEdit(t)} 
+                            className="text-xs px-2 py-1 h-6"
                           >
-                            {loadingEstadoId === t.id ? 'Cargando...' : 'Finalizar'}
+                            ✏️ Editar
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive" 
+                            onClick={() => handleDelete(t.id)} 
+                            className="text-xs px-2 py-1 h-6"
+                          >
+                            🗑️ Eliminar
                           </Button>
                         </div>
-                      )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -354,6 +500,88 @@ function MantenimientoSection() {
                 setModalOpen(false);
                 setEstablecimientoSeleccionado('');
                 setForm({ fecha: '', descripcion: '', responsable: '', cancha: '' });
+              }} className="w-full text-base py-4 h-auto font-medium">
+                ❌ Cancelar
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de edición */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-md max-w-[95vw] max-h-[90vh] overflow-y-auto mx-auto my-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg sm:text-xl">✏️ Editar Tarea de Mantenimiento</DialogTitle>
+            <DialogDescription className="text-base">
+              Modificá los datos de la tarea de mantenimiento.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="edit-fecha" className="text-base font-medium text-gray-900 dark:text-gray-100">📅 Fecha*</Label>
+              <Input 
+                id="edit-fecha" 
+                type="date" 
+                name="fecha" 
+                value={editForm.fecha} 
+                onChange={(e) => setEditForm({...editForm, fecha: e.target.value})} 
+                required 
+                className="text-base h-12"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label htmlFor="edit-descripcion" className="text-base font-medium text-gray-900 dark:text-gray-100">📝 Descripción*</Label>
+              <Input 
+                id="edit-descripcion" 
+                type="text" 
+                name="descripcion" 
+                value={editForm.descripcion} 
+                onChange={(e) => setEditForm({...editForm, descripcion: e.target.value})} 
+                placeholder="Descripción de la tarea..." 
+                required 
+                className="text-base h-12"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label htmlFor="edit-responsable" className="text-base font-medium text-gray-900 dark:text-gray-100">👤 Responsable</Label>
+              <Input 
+                id="edit-responsable" 
+                type="text" 
+                name="responsable" 
+                value={editForm.responsable} 
+                onChange={(e) => setEditForm({...editForm, responsable: e.target.value})} 
+                placeholder="Nombre del responsable..." 
+                className="text-base h-12"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label htmlFor="edit-cancha" className="text-base font-medium text-gray-900 dark:text-gray-100">🏢 Establecimiento*</Label>
+              <Select value={editEstablecimientoSeleccionado} onValueChange={(value) => {
+                setEditEstablecimientoSeleccionado(value);
+                setEditForm({...editForm, cancha: value});
+              }}>
+                <SelectTrigger className="text-base h-12">
+                  <SelectValue placeholder="Seleccionar establecimiento" />
+                </SelectTrigger>
+                <SelectContent>
+                  {establecimientos.map(establecimiento => (
+                    <SelectItem key={establecimiento.id} value={establecimiento.nombre}>
+                      {establecimiento.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-3 pt-4">
+              <Button type="submit" className="w-full text-base py-4 h-auto font-medium" disabled={loadingBtn}>
+                {loadingBtn ? '⏳ Guardando...' : '💾 Guardar Cambios'}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => {
+                setEditModalOpen(false);
+                setEditTarea(null);
+                setEditForm({ fecha: '', descripcion: '', responsable: '', cancha: '' });
+                setEditEstablecimientoSeleccionado('');
               }} className="w-full text-base py-4 h-auto font-medium">
                 ❌ Cancelar
               </Button>

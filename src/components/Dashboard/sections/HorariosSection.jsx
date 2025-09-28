@@ -172,81 +172,147 @@ function HorariosSection() {
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Horarios de Establecimientos</h2>
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+      <h2 className="text-xl font-bold text-center">Horarios de Establecimientos</h2>
       
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <label className="text-sm font-medium mb-2 block text-gray-700 dark:text-gray-300">Establecimiento</label>
-          <select 
-            value={canchaSel} 
-            onChange={e => setCanchaSel(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {canchas.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
+      {/* Filtros */}
+      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-base font-medium mb-2 block text-gray-900 dark:text-gray-100">🏢 Establecimiento</label>
+            <select 
+              value={canchaSel} 
+              onChange={e => setCanchaSel(e.target.value)}
+              className="w-full px-3 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-12"
+            >
+              {canchas.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
 
-        <div className="flex-1">
-          <label className="text-sm font-medium mb-2 block text-gray-700 dark:text-gray-300">Fecha</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div>
+            <label className="text-base font-medium mb-2 block text-gray-900 dark:text-gray-100">📅 Fecha</label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={e => setSelectedDate(e.target.value)}
+              className="w-full px-3 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-12"
+            />
+          </div>
         </div>
       </div>
 
-      {true ? (
-        <div className="space-y-4">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{formatDMY(selectedDate)} - {canchaSel}</h3>
-            <div className="space-y-2">
-              {getBloquesFecha(canchaSel, selectedDate).map((bloque, idx) => (
-                <div
-                  key={idx}
-                  className={`p-3 rounded-lg border transition-all duration-200 flex items-center gap-2 ${
-                    bloque.tipo === 'ocupado'
-                      ? 'bg-red-200 border-2 border-red-400 text-red-900 font-bold shadow-md'
-                      : 'bg-green-50 border-green-200 text-green-800'
-                  }`}
-                >
-                  {bloque.tipo === 'ocupado' && (
-                    <FaLock className="text-red-700 mr-2" />
-                  )}
-                  <div>
-                    <div className="font-medium">
-                      {bloque.tipo === 'ocupado' && bloque.cruzaMedianoche 
-                        ? `${bloque.reserva.hora_desde.slice(0,5)} - ${bloque.reserva.hora_hasta.slice(0,5)}`
-                        : `${minutosAHoraStr(bloque.desde)} - ${minutosAHoraStr(bloque.hasta)}`
-                      }
-                    </div>
-                    <div className="text-sm">
-                      {bloque.tipo === 'ocupado'
-                        ? `Ocupado - ${bloque.socio} (${bloque.reserva.hora_desde.slice(0,5)}-${bloque.reserva.hora_hasta.slice(0,5)})`
-                        : null}
-                    </div>
+      {/* Vista móvil - Solo tarjetas */}
+      <div className="block lg:hidden space-y-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-2 border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
+            {formatDMY(selectedDate)} - {canchaSel}
+          </h3>
+          <div className="space-y-2">
+            {getBloquesFecha(canchaSel, selectedDate).map((bloque, idx) => (
+              <div
+                key={idx}
+                className={`p-3 rounded-lg border transition-all duration-200 flex items-center gap-2 ${
+                  bloque.tipo === 'ocupado'
+                    ? 'bg-red-200 border-2 border-red-400 text-red-900 font-bold shadow-md'
+                    : 'bg-green-50 border-green-200 text-green-800'
+                }`}
+              >
+                {bloque.tipo === 'ocupado' && (
+                  <FaLock className="text-red-700 mr-2" />
+                )}
+                <div className="flex-1">
+                  <div className="font-medium text-base">
+                    {bloque.tipo === 'ocupado' && bloque.cruzaMedianoche 
+                      ? `${bloque.reserva.hora_desde.slice(0,5)} - ${bloque.reserva.hora_hasta.slice(0,5)}`
+                      : `${minutosAHoraStr(bloque.desde)} - ${minutosAHoraStr(bloque.hasta)}`
+                    }
+                  </div>
+                  <div className="text-sm">
+                    {bloque.tipo === 'ocupado'
+                      ? `Ocupado - ${bloque.socio}`
+                      : 'Disponible'}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="flex gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-200 border border-green-300 rounded"></div>
-              Libre
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-400 border-2 border-red-500 rounded"></div>
-              Ocupado
-            </div>
+              </div>
+            ))}
           </div>
         </div>
-      ) : null}
+        
+        <div className="flex gap-4 text-base justify-center">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-green-200 border border-green-300 rounded"></div>
+            Libre
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-red-400 border-2 border-red-500 rounded"></div>
+            Ocupado
+          </div>
+        </div>
+      </div>
+
+      {/* Vista desktop - Bloques de horarios (sin scroll) */}
+      <div className="hidden lg:block">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-2 border-gray-200 dark:border-gray-700">
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">
+            {formatDMY(selectedDate)} - {canchaSel}
+          </h3>
+          
+          {/* Vista compacta por bloques - Sin scroll */}
+          <div className="space-y-3">
+            {getBloquesFecha(canchaSel, selectedDate).map((bloque, idx) => (
+              <div
+                key={idx}
+                className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                  bloque.tipo === 'ocupado'
+                    ? 'bg-red-100 border-red-300 text-red-900 dark:bg-red-900/30 dark:border-red-600 dark:text-red-100'
+                    : 'bg-green-100 border-green-300 text-green-900 dark:bg-green-900/30 dark:border-green-600 dark:text-green-100'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {bloque.tipo === 'ocupado' && (
+                      <FaLock className="text-red-700 dark:text-red-300 text-lg" />
+                    )}
+                    <div>
+                      <div className="text-lg font-bold">
+                        {bloque.tipo === 'ocupado' && bloque.cruzaMedianoche 
+                          ? `${bloque.reserva.hora_desde.slice(0,5)} - ${bloque.reserva.hora_hasta.slice(0,5)}`
+                          : `${minutosAHoraStr(bloque.desde)} - ${minutosAHoraStr(bloque.hasta)}`
+                        }
+                      </div>
+                      <div className="text-sm">
+                        {bloque.tipo === 'ocupado'
+                          ? `Ocupado por: ${bloque.socio}`
+                          : 'Disponible'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={`px-4 py-2 rounded-full text-sm font-bold ${
+                    bloque.tipo === 'ocupado'
+                      ? 'bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200'
+                      : 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200'
+                  }`}>
+                    {bloque.tipo === 'ocupado' ? '🔒 OCUPADO' : '✅ LIBRE'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        <div className="flex gap-6 text-base justify-center mt-4">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-green-200 border border-green-300 rounded"></div>
+            Libre
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-red-400 border-2 border-red-500 rounded"></div>
+            Ocupado
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

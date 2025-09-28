@@ -475,8 +475,8 @@ function ReservasSection({ modalOpen, setModalOpen }) {
         <div className="text-red-500 text-center py-8">{error}</div>
       ) : (
         <>
-          {/* Lista simple para usuarios mayores */}
-          <div className="space-y-3">
+          {/* Vista móvil - Solo tarjetas */}
+          <div className="block lg:hidden space-y-3">
             {reservasPaginadas.map(r => (
               <div key={r.id} className="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700">
                 {/* Información principal - Simple y clara */}
@@ -529,6 +529,7 @@ function ReservasSection({ modalOpen, setModalOpen }) {
             ))}
           </div>
 
+          {/* Vista desktop - Solo tabla */}
           <div className="hidden lg:block">
             <Table>
               <TableHeader>
