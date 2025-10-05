@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Imagen para Redes Sociales</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        canvas { 
+            border: 2px solid #ddd; 
+            margin: 10px; 
+            background: white;
+        }
+        .instructions { 
+            background: #e3f2fd; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 20px 0; 
+        }
+        .preview {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .preview-item {
+            text-align: center;
+        }
+        .preview-item h3 {
+            margin: 10px 0 5px 0;
+            color: #333;
+        }
+        .preview-item p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Imagen para Redes Sociales</h1>
+        
+        <div class="instructions">
+            <h3>Instrucciones:</h3>
+            <ol>
+                <li>Sube tu logo (logo.svg) usando el input de abajo</li>
+                <li>Se generará una imagen optimizada para WhatsApp, Facebook, etc.</li>
+                <li>Descarga la imagen haciendo clic derecho y "Guardar imagen como..."</li>
+                <li>Guárdala como "og-image.png" en la carpeta public/</li>
+                <li>Actualiza el index.html para usar esta imagen en lugar del logo.svg</li>
+            </ol>
+        </div>
+
+        <input type="file" id="fileInput" accept="image/*">
+        
+        <div class="preview" id="previewContainer"></div>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        generateSocialImages(img);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function generateSocialImages(img) {
+            const container = document.getElementById('previewContainer');
+            container.innerHTML = '';
+
+            // Tamaños estándar para redes sociales
+            const sizes = [
+                { name: 'WhatsApp/Facebook', width: 1200, height: 630 },
+                { name: 'Twitter', width: 1200, height: 675 },
+                { name: 'Instagram', width: 1080, height: 1080 }
+            ];
+
+            sizes.forEach(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size.width;
+                canvas.height = size.height;
+                
+                const ctx = canvas.getContext('2d');
+                
+                // Fondo degradado
+                const gradient = ctx.createLinearGradient(0, 0, size.width, size.height);
+                gradient.addColorStop(0, '#1f2937');
+                gradient.addColorStop(1, '#374151');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size.width, size.height);
+                
+                // Calcular dimensiones del logo
+                const logoSize = Math.min(size.width, size.height) * 0.3;
+                const logoX = (size.width - logoSize) / 2;
+                const logoY = (size.height - logoSize) / 2 - 20;
+                
+                // Dibujar el logo
+                ctx.drawImage(img, logoX, logoY, logoSize, logoSize);
+                
+                // Agregar texto
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${size.width * 0.04}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('Club Sarmiento', size.width / 2, logoY + logoSize + 60);
+                
+                ctx.font = `${size.width * 0.025}px Arial`;
+                ctx.fillStyle = '#d1d5db';
+                ctx.fillText('Sistema de Gestión', size.width / 2, logoY + logoSize + 90);
+                
+                // Crear contenedor para este tamaño
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                
+                const title = document.createElement('h3');
+                title.textContent = size.name;
+                title.textContent += ` (${size.width}x${size.height})`;
+                
+                const description = document.createElement('p');
+                description.textContent = 'Haz clic derecho para descargar';
+                
+                previewItem.appendChild(title);
+                previewItem.appendChild(canvas);
+                previewItem.appendChild(description);
+                
+                container.appendChild(previewItem);
+            });
+        }
+    </script>
+</body>
+</html>
