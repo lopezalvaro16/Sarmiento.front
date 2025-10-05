@@ -3,7 +3,7 @@ const urlsToCache = [
   '/',
   '/static/js/bundle.js',
   '/static/css/main.css',
-  '/logoSarmiento.png',
+  '/logo.svg',
   '/manifest.json'
 ];
 
