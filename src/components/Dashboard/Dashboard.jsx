@@ -116,7 +116,7 @@ function Dashboard({ user, onLogout }) {
           onIrInscripciones={() => setSelectedSection('inscripciones')} 
         />;
       }
-      return <InicioSection user={admin} onNuevaReserva={() => { setSelectedSection('reservas'); setModalOpen(true); }} onIrHorarios={() => setSelectedSection('horarios')} onIrMantenimiento={() => setSelectedSection('mantenimiento')} />;
+      return <InicioSection user={admin} onNuevaReserva={() => { setSelectedSection('reservas'); setModalOpen(true); }} onIrReservas={() => setSelectedSection('reservas')} onIrHorarios={() => setSelectedSection('horarios')} />;
     }
     if (admin.role === 'canchas') {
       if (selectedSection === 'reservas') return <ReservasSection modalOpen={modalOpen} setModalOpen={setModalOpen} />;

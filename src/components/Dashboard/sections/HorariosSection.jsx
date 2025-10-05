@@ -157,14 +157,14 @@ function HorariosSection() {
 
     const fechas = new Set();
     reservas.forEach(reserva => {
-      if (String(reserva.cancha) === String(canchaSel)) {
+      if (canchaSel === 'todos' || String(reserva.cancha) === String(canchaSel)) {
         fechas.add(reserva.fecha.slice(0, 10));
       }
     });
     setFechasConReservas(fechas);
   }, [reservas, canchaSel]);
 
-  const reservasCancha = reservas.filter(r => String(r.cancha) === canchaSel);
+  const reservasCancha = canchaSel === 'todos' ? reservas : reservas.filter(r => String(r.cancha) === canchaSel);
 
   function getReservaPorFecha(fechaStr, hora) {
     return reservasCancha.find(r => {
@@ -178,13 +178,7 @@ function HorariosSection() {
     });
   }
 
-  function getBloquesFecha(cancha, fechaStr) {
-    const reservasDia = reservas.filter(r => {
-      return String(r.cancha) === String(cancha) && r.fecha.slice(0, 10) === fechaStr;
-    });
-    
-    const finDia = 24 * 60;
-    
+  function procesarBloques(reservasDia, finDia) {
     // Si no hay reservas, todo el día está libre
     if (reservasDia.length === 0) {
       return [{ tipo: 'libre', desde: 0, hasta: finDia }];
@@ -205,6 +199,7 @@ function HorariosSection() {
           desde: desde,
           hasta: hasta, // Mantener las horas originales para mostrar
           socio: r.socio,
+          cancha: r.cancha,
           reserva: r,
           cruzaMedianoche: true
         });
@@ -215,6 +210,7 @@ function HorariosSection() {
           desde: desde,
           hasta: hasta,
           socio: r.socio,
+          cancha: r.cancha,
           reserva: r,
           cruzaMedianoche: false
         });
@@ -265,6 +261,47 @@ function HorariosSection() {
     return bloquesFinales;
   }
 
+  function getBloquesFecha(cancha, fechaStr) {
+    const reservasDia = reservas.filter(r => {
+      if (cancha === 'todos') {
+        return r.fecha.slice(0, 10) === fechaStr;
+      }
+      return String(r.cancha) === String(cancha) && r.fecha.slice(0, 10) === fechaStr;
+    });
+    
+    const finDia = 24 * 60;
+    
+    // Si no hay reservas, todo el día está libre
+    if (reservasDia.length === 0) {
+      if (cancha === 'todos') {
+        return [{ tipo: 'libre', desde: 0, hasta: finDia, mensaje: 'No hay reservas en ningún establecimiento' }];
+      }
+      return [{ tipo: 'libre', desde: 0, hasta: finDia }];
+    }
+
+    // Si es "todos", agrupar por establecimiento
+    if (cancha === 'todos') {
+      const establecimientos = [...new Set(reservasDia.map(r => r.cancha))];
+      const grupos = [];
+      
+      establecimientos.forEach(establecimiento => {
+        const reservasEstablecimiento = reservasDia.filter(r => String(r.cancha) === String(establecimiento));
+        const bloquesEstablecimiento = procesarBloques(reservasEstablecimiento, finDia);
+        
+        grupos.push({
+          tipo: 'grupo',
+          establecimiento: establecimiento,
+          bloques: bloquesEstablecimiento
+        });
+      });
+      
+      return grupos;
+    }
+    
+    // Para un establecimiento específico, usar la función procesarBloques
+    return procesarBloques(reservasDia, finDia);
+  }
+
   function minutosAHoraStr(min) {
     const h = Math.floor(min / 60).toString().padStart(2, '0');
     const m = (min % 60).toString().padStart(2, '0');
@@ -289,6 +326,7 @@ function HorariosSection() {
               onChange={e => setCanchaSel(e.target.value)}
               className="w-full px-3 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-12"
             >
+              <option value="todos">Todos los establecimientos</option>
               {canchas.map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -409,36 +447,80 @@ function HorariosSection() {
       <div className="block lg:hidden space-y-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-2 border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
-            {formatDMY(selectedDate)} - {canchaSel}
+            {canchaSel === 'todos' 
+              ? `Reservas del ${formatDMY(selectedDate)} - Todos los establecimientos`
+              : `${formatDMY(selectedDate)} - ${canchaSel}`
+            }
           </h3>
-          <div className="space-y-2">
-            {getBloquesFecha(canchaSel, selectedDate).map((bloque, idx) => (
-              <div
-                key={idx}
-                className={`p-3 rounded-lg border transition-all duration-200 flex items-center gap-2 ${
-                  bloque.tipo === 'ocupado'
-                    ? 'bg-red-200 border-2 border-red-400 text-red-900 font-bold shadow-md'
-                    : 'bg-green-50 border-green-200 text-green-800'
-                }`}
-              >
-                {bloque.tipo === 'ocupado' && (
-                  <FaLock className="text-red-700 mr-2" />
-                )}
-                <div className="flex-1">
-                  <div className="font-medium text-base">
-                    {bloque.tipo === 'ocupado' && bloque.cruzaMedianoche 
-                      ? `${bloque.reserva.hora_desde.slice(0,5)} - ${bloque.reserva.hora_hasta.slice(0,5)}`
-                      : `${minutosAHoraStr(bloque.desde)} - ${minutosAHoraStr(bloque.hasta)}`
-                    }
+          <div className="space-y-4">
+            {getBloquesFecha(canchaSel, selectedDate).map((item, idx) => {
+              if (item.tipo === 'grupo') {
+                return (
+                  <div key={idx} className="space-y-2">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                      {formatDMY(selectedDate)} - {item.establecimiento}
+                    </h4>
+                    <div className="space-y-2">
+                      {item.bloques.map((bloque, bloqueIdx) => (
+                        <div
+                          key={bloqueIdx}
+                          className={`p-3 rounded-lg border transition-all duration-200 flex items-center gap-2 ${
+                            bloque.tipo === 'ocupado'
+                              ? 'bg-red-200 border-2 border-red-400 text-red-900 font-bold shadow-md'
+                              : 'bg-green-50 border-green-200 text-green-800'
+                          }`}
+                        >
+                          {bloque.tipo === 'ocupado' && (
+                            <FaLock className="text-red-700 mr-2" />
+                          )}
+                          <div className="flex-1">
+                            <div className="font-medium text-base">
+                              {bloque.tipo === 'ocupado' && bloque.cruzaMedianoche 
+                                ? `${bloque.reserva.hora_desde.slice(0,5)} - ${bloque.reserva.hora_hasta.slice(0,5)}`
+                                : `${minutosAHoraStr(bloque.desde)} - ${minutosAHoraStr(bloque.hasta)}`
+                              }
+                            </div>
+                            <div className="text-sm">
+                              {bloque.tipo === 'ocupado'
+                                ? `Ocupado - ${bloque.socio}`
+                                : bloque.mensaje || 'Disponible'}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="text-sm">
-                    {bloque.tipo === 'ocupado'
-                      ? `Ocupado - ${bloque.socio}`
-                      : 'Disponible'}
+                );
+              } else {
+                return (
+                  <div
+                    key={idx}
+                    className={`p-3 rounded-lg border transition-all duration-200 flex items-center gap-2 ${
+                      item.tipo === 'ocupado'
+                        ? 'bg-red-200 border-2 border-red-400 text-red-900 font-bold shadow-md'
+                        : 'bg-green-50 border-green-200 text-green-800'
+                    }`}
+                  >
+                    {item.tipo === 'ocupado' && (
+                      <FaLock className="text-red-700 mr-2" />
+                    )}
+                    <div className="flex-1">
+                      <div className="font-medium text-base">
+                        {item.tipo === 'ocupado' && item.cruzaMedianoche 
+                          ? `${item.reserva.hora_desde.slice(0,5)} - ${item.reserva.hora_hasta.slice(0,5)}`
+                          : `${minutosAHoraStr(item.desde)} - ${minutosAHoraStr(item.hasta)}`
+                        }
+                      </div>
+                      <div className="text-sm">
+                        {item.tipo === 'ocupado'
+                          ? `Ocupado - ${item.socio}${canchaSel === 'todos' ? ` (${item.cancha})` : ''}`
+                          : item.mensaje || 'Disponible'}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                );
+              }
+            })}
           </div>
         </div>
         
@@ -479,49 +561,104 @@ function HorariosSection() {
       <div className="hidden lg:block">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border-2 border-gray-200 dark:border-gray-700">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 text-center">
-            {formatDMY(selectedDate)} - {canchaSel}
+            {canchaSel === 'todos' 
+              ? `Reservas del ${formatDMY(selectedDate)} - Todos los establecimientos`
+              : `${formatDMY(selectedDate)} - ${canchaSel}`
+            }
           </h3>
           
           {/* Vista compacta por bloques - Sin scroll */}
-          <div className="space-y-3">
-            {getBloquesFecha(canchaSel, selectedDate).map((bloque, idx) => (
-              <div
-                key={idx}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                  bloque.tipo === 'ocupado'
-                    ? 'bg-red-100 border-red-300 text-red-900 dark:bg-red-900/30 dark:border-red-600 dark:text-red-100'
-                    : 'bg-green-100 border-green-300 text-green-900 dark:bg-green-900/30 dark:border-green-600 dark:text-green-100'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {bloque.tipo === 'ocupado' && (
-                      <FaLock className="text-red-700 dark:text-red-300 text-lg" />
-                    )}
-                    <div>
-                      <div className="text-lg font-bold">
-                        {bloque.tipo === 'ocupado' && bloque.cruzaMedianoche 
-                          ? `${bloque.reserva.hora_desde.slice(0,5)} - ${bloque.reserva.hora_hasta.slice(0,5)}`
-                          : `${minutosAHoraStr(bloque.desde)} - ${minutosAHoraStr(bloque.hasta)}`
-                        }
+          <div className="space-y-6">
+            {getBloquesFecha(canchaSel, selectedDate).map((item, idx) => {
+              if (item.tipo === 'grupo') {
+                return (
+                  <div key={idx} className="space-y-3">
+                    <h4 className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center bg-blue-100 dark:bg-blue-900 p-3 rounded-lg">
+                      {formatDMY(selectedDate)} - {item.establecimiento}
+                    </h4>
+                    <div className="space-y-3">
+                      {item.bloques.map((bloque, bloqueIdx) => (
+                        <div
+                          key={bloqueIdx}
+                          className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                            bloque.tipo === 'ocupado'
+                              ? 'bg-red-100 border-red-300 text-red-900 dark:bg-red-900/30 dark:border-red-600 dark:text-red-100'
+                              : 'bg-green-100 border-green-300 text-green-900 dark:bg-green-900/30 dark:border-green-600 dark:text-green-100'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {bloque.tipo === 'ocupado' && (
+                                <FaLock className="text-red-700 dark:text-red-300 text-lg" />
+                              )}
+                              <div>
+                                <div className="text-lg font-bold">
+                                  {bloque.tipo === 'ocupado' && bloque.cruzaMedianoche 
+                                    ? `${bloque.reserva.hora_desde.slice(0,5)} - ${bloque.reserva.hora_hasta.slice(0,5)}`
+                                    : `${minutosAHoraStr(bloque.desde)} - ${minutosAHoraStr(bloque.hasta)}`
+                                  }
+                                </div>
+                                <div className="text-sm">
+                                  {bloque.tipo === 'ocupado'
+                                    ? `Ocupado por: ${bloque.socio}`
+                                    : bloque.mensaje || 'Disponible'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className={`px-4 py-2 rounded-full text-sm font-bold ${
+                              bloque.tipo === 'ocupado'
+                                ? 'bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200'
+                                : 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200'
+                            }`}>
+                              {bloque.tipo === 'ocupado' ? '🔒 OCUPADO' : '✅ LIBRE'}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              } else {
+                return (
+                  <div
+                    key={idx}
+                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                      item.tipo === 'ocupado'
+                        ? 'bg-red-100 border-red-300 text-red-900 dark:bg-red-900/30 dark:border-red-600 dark:text-red-100'
+                        : 'bg-green-100 border-green-300 text-green-900 dark:bg-green-900/30 dark:border-green-600 dark:text-green-100'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {item.tipo === 'ocupado' && (
+                          <FaLock className="text-red-700 dark:text-red-300 text-lg" />
+                        )}
+                        <div>
+                          <div className="text-lg font-bold">
+                            {item.tipo === 'ocupado' && item.cruzaMedianoche 
+                              ? `${item.reserva.hora_desde.slice(0,5)} - ${item.reserva.hora_hasta.slice(0,5)}`
+                              : `${minutosAHoraStr(item.desde)} - ${minutosAHoraStr(item.hasta)}`
+                            }
+                          </div>
+                          <div className="text-sm">
+                            {item.tipo === 'ocupado'
+                              ? `Ocupado por: ${item.socio}${canchaSel === 'todos' ? ` (${item.cancha})` : ''}`
+                              : item.mensaje || 'Disponible'}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm">
-                        {bloque.tipo === 'ocupado'
-                          ? `Ocupado por: ${bloque.socio}`
-                          : 'Disponible'}
+                      <div className={`px-4 py-2 rounded-full text-sm font-bold ${
+                        item.tipo === 'ocupado'
+                          ? 'bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200'
+                          : 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200'
+                      }`}>
+                        {item.tipo === 'ocupado' ? '🔒 OCUPADO' : '✅ LIBRE'}
                       </div>
                     </div>
                   </div>
-                  <div className={`px-4 py-2 rounded-full text-sm font-bold ${
-                    bloque.tipo === 'ocupado'
-                      ? 'bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200'
-                      : 'bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200'
-                  }`}>
-                    {bloque.tipo === 'ocupado' ? '🔒 OCUPADO' : '✅ LIBRE'}
-                  </div>
-                </div>
-              </div>
-            ))}
+                );
+              }
+            })}
           </div>
         </div>
         

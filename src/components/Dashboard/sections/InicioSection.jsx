@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-function InicioSection({ user, onNuevaReserva, onIrHorarios, onIrMantenimiento }) {
+function InicioSection({ user, onNuevaReserva, onIrReservas, onIrHorarios }) {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -83,21 +83,21 @@ function InicioSection({ user, onNuevaReserva, onIrHorarios, onIrMantenimiento }
       <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center w-full max-w-2xl">
         <button 
           onClick={onNuevaReserva} 
-          className="px-4 sm:px-6 py-3 rounded-lg bg-primary text-white font-semibold shadow hover:bg-primary/80 transition text-sm sm:text-base"
+          className="px-4 sm:px-6 py-3 rounded-lg bg-gray-600 text-white font-semibold shadow-md hover:bg-gray-500 transition-colors duration-200 text-sm sm:text-base border border-gray-500"
         >
           + Nueva Reserva
         </button>
         <button 
-          onClick={onIrHorarios} 
-          className="px-4 sm:px-6 py-3 rounded-lg bg-secondary text-white font-semibold shadow hover:bg-secondary/80 transition text-sm sm:text-base"
+          onClick={onIrReservas} 
+          className="px-4 sm:px-6 py-3 rounded-lg bg-gray-700 text-white font-semibold shadow-md hover:bg-gray-600 transition-colors duration-200 text-sm sm:text-base border border-gray-600"
         >
-          Ver Horarios
+          Reservas
         </button>
         <button 
-          onClick={onIrMantenimiento} 
-          className="px-4 sm:px-6 py-3 rounded-lg bg-destructive text-white font-semibold shadow hover:bg-destructive/80 transition text-sm sm:text-base"
+          onClick={onIrHorarios} 
+          className="px-4 sm:px-6 py-3 rounded-lg bg-gray-800 text-white font-semibold shadow-md hover:bg-gray-700 transition-colors duration-200 text-sm sm:text-base border border-gray-700"
         >
-          Mantenimiento
+          Ver Horarios
         </button>
       </div>
     </div>
