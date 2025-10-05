@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generador de Iconos PWA</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        .instructions { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Iconos para PWA</h1>
+        
+        <div class="instructions">
+            <h3>Instrucciones:</h3>
+            <ol>
+                <li>Sube tu logo (logoSarmiento.png) usando el input de abajo</li>
+                <li>Los iconos se generarán automáticamente en diferentes tamaños</li>
+                <li>Descarga cada icono haciendo clic derecho y "Guardar imagen como..."</li>
+                <li>Guárdalos en la carpeta public/ con los nombres: icon-192.png, icon-512.png</li>
+            </ol>
+        </div>
+
+        <input type="file" id="fileInput" accept="image/*">
+        
+        <div id="canvasContainer"></div>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        generateIcons(img);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function generateIcons(img) {
+            const sizes = [192, 512];
+            const container = document.getElementById('canvasContainer');
+            container.innerHTML = '';
+
+            sizes.forEach(size => {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                canvas.style.display = 'block';
+                canvas.style.margin = '10px';
+                
+                const ctx = canvas.getContext('2d');
+                
+                // Dibujar fondo blanco
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, size, size);
+                
+                // Calcular dimensiones para mantener proporción
+                const aspectRatio = img.width / img.height;
+                let drawWidth, drawHeight, offsetX, offsetY;
+                
+                if (aspectRatio > 1) {
+                    // Imagen más ancha que alta
+                    drawWidth = size * 0.8;
+                    drawHeight = drawWidth / aspectRatio;
+                } else {
+                    // Imagen más alta que ancha
+                    drawHeight = size * 0.8;
+                    drawWidth = drawHeight * aspectRatio;
+                }
+                
+                offsetX = (size - drawWidth) / 2;
+                offsetY = (size - drawHeight) / 2;
+                
+                // Dibujar la imagen
+                ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+                
+                // Agregar etiqueta
+                const label = document.createElement('div');
+                label.textContent = `Icono ${size}x${size}px`;
+                label.style.textAlign = 'center';
+                label.style.fontWeight = 'bold';
+                
+                container.appendChild(label);
+                container.appendChild(canvas);
+            });
+        }
+    </script>
+</body>
+</html>
