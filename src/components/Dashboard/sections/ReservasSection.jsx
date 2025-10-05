@@ -311,10 +311,10 @@ function ReservasSection({ modalOpen, setModalOpen }) {
     
     switch (filtroFecha) {
       case 'proximas':
-        // Solo próximas 30 días
-        const en30Dias = new Date();
-        en30Dias.setDate(hoy.getDate() + 30);
-        return fechaReserva >= hoy && fechaReserva <= en30Dias;
+        // Solo próximas 7 días
+        const en7Dias = new Date();
+        en7Dias.setDate(hoy.getDate() + 7);
+        return fechaReserva >= hoy && fechaReserva <= en7Dias;
       
       case 'rango':
         if (!fechaDesde && !fechaHasta) return true;
@@ -327,18 +327,71 @@ function ReservasSection({ modalOpen, setModalOpen }) {
       
       case 'todas':
       default:
-        return true;
+        // Solo reservas presentes y futuras (no del pasado)
+        return fechaReserva >= hoy;
     }
   };
 
-  const reservasFiltradas = reservas.filter(r =>
-    (filtroSocio === '' || r.socio.toLowerCase().includes(filtroSocio.toLowerCase())) &&
-    (filtroCancha === '' || filtroCancha === 'todas' || String(r.cancha) === filtroCancha) &&
-    filtrarPorFecha(r)
-  );
+  // Función especial para el filtro "próximas" con fallback
+  const obtenerReservasProximas = () => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    // Primero intentar con 7 días
+    const en7Dias = new Date();
+    en7Dias.setDate(hoy.getDate() + 7);
+    
+    const reservas7Dias = reservas.filter(r => {
+      const fechaReserva = new Date(r.fecha);
+      return fechaReserva >= hoy && fechaReserva <= en7Dias;
+    });
+    
+    // Si hay reservas en 7 días, devolverlas
+    if (reservas7Dias.length > 0) {
+      return reservas7Dias;
+    }
+    
+    // Si no hay reservas en 7 días, devolver las 2 más próximas
+    const reservasFuturas = reservas.filter(r => {
+      const fechaReserva = new Date(r.fecha);
+      return fechaReserva >= hoy;
+    });
+    
+    // Ordenar por fecha y hora y tomar las 3 más próximas
+    reservasFuturas.sort((a, b) => {
+      const fechaA = new Date(`${a.fecha}T${a.hora_desde}`);
+      const fechaB = new Date(`${b.fecha}T${b.hora_desde}`);
+      return fechaA - fechaB;
+    });
+    
+    return reservasFuturas.slice(0, 3);
+  };
 
-  // Ordenar por fecha (más recientes primero)
-  reservasFiltradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  // Aplicar filtros según el tipo
+  let reservasFiltradas;
+  
+  if (filtroFecha === 'proximas') {
+    // Para "próximas", usar la lógica especial con fallback
+    const reservasProximas = obtenerReservasProximas();
+    reservasFiltradas = reservasProximas.filter(r =>
+      (filtroSocio === '' || r.socio.toLowerCase().includes(filtroSocio.toLowerCase())) &&
+      (filtroCancha === '' || filtroCancha === 'todas' || String(r.cancha) === filtroCancha)
+    );
+  } else {
+    // Para otros filtros, usar la lógica normal
+    reservasFiltradas = reservas.filter(r =>
+      (filtroSocio === '' || r.socio.toLowerCase().includes(filtroSocio.toLowerCase())) &&
+      (filtroCancha === '' || filtroCancha === 'todas' || String(r.cancha) === filtroCancha) &&
+      filtrarPorFecha(r)
+    );
+  }
+
+  // Ordenar por fecha y hora (más cercanas primero)
+  reservasFiltradas.sort((a, b) => {
+    const fechaA = new Date(`${a.fecha}T${a.hora_desde}`);
+    const fechaB = new Date(`${b.fecha}T${b.hora_desde}`);
+    return fechaA - fechaB;
+  });
 
   // Calcular paginación
   const totalPaginas = Math.ceil(reservasFiltradas.length / reservasPorPagina);
