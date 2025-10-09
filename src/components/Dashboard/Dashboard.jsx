@@ -18,7 +18,8 @@ import SociosSection from './sections/SociosSection';
 import ActividadesSection from './sections/ActividadesSection';
 import InscripcionesSection from './sections/InscripcionesSection';
 import ContactosSection from './sections/ContactosSection';
-import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX, FiMapPin, FiUsers, FiActivity, FiUserCheck, FiPhone } from 'react-icons/fi';
+import DocumentosSection from './sections/DocumentosSection';
+import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX, FiMapPin, FiUsers, FiActivity, FiUserCheck, FiPhone, FiFolder } from 'react-icons/fi';
 import { Toaster } from '@/components/ui/sonner';
 import usePreventBackNavigation from '../../hooks/usePreventBackNavigation';
 
@@ -58,6 +59,7 @@ function Dashboard({ user, onLogout }) {
       { label: 'Socios', section: 'socios', icon: <FiUsers /> },
       { label: 'Actividades', section: 'actividades', icon: <FiActivity /> },
       { label: 'Inscripciones', section: 'inscripciones', icon: <FiUserCheck /> },
+      { label: 'Documentos', section: 'documentos', icon: <FiFolder /> },
       { label: 'Contactos', section: 'contactos', icon: <FiPhone /> },
     ],
   };
@@ -153,6 +155,7 @@ function Dashboard({ user, onLogout }) {
       if (selectedSection === 'socios') return <SociosSection />;
       if (selectedSection === 'actividades') return <ActividadesSection />;
       if (selectedSection === 'inscripciones') return <InscripcionesSection />;
+      if (selectedSection === 'documentos') return <DocumentosSection />;
       if (selectedSection === 'contactos') return <ContactosSection />;
       return <SociosSection />;
     }
