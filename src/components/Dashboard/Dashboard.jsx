@@ -17,7 +17,8 @@ import InicioSociosSection from './sections/InicioSociosSection';
 import SociosSection from './sections/SociosSection';
 import ActividadesSection from './sections/ActividadesSection';
 import InscripcionesSection from './sections/InscripcionesSection';
-import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX, FiMapPin, FiUsers, FiActivity, FiUserCheck } from 'react-icons/fi';
+import ContactosSection from './sections/ContactosSection';
+import { FiHome, FiCalendar, FiClock, FiTool, FiDollarSign, FiAlertCircle, FiBarChart2, FiBox, FiShoppingCart, FiTrendingUp, FiLogOut, FiMoon, FiSun, FiMenu, FiX, FiMapPin, FiUsers, FiActivity, FiUserCheck, FiPhone } from 'react-icons/fi';
 import { Toaster } from '@/components/ui/sonner';
 import usePreventBackNavigation from '../../hooks/usePreventBackNavigation';
 
@@ -36,24 +37,28 @@ function Dashboard({ user, onLogout }) {
       { label: 'Establecimientos', section: 'establecimientos', icon: <FiMapPin /> },
       { label: 'Horarios', section: 'horarios', icon: <FiClock /> },
       { label: 'Mantenimiento', section: 'mantenimiento', icon: <FiTool /> },
+      { label: 'Contactos', section: 'contactos', icon: <FiPhone /> },
     ],
     cobranzas: [
       { label: 'Inicio', section: 'inicio', icon: <FiHome /> },
       { label: 'Pagos', section: 'pagos', icon: <FiDollarSign /> },
       { label: 'Deudas', section: 'deudas', icon: <FiAlertCircle /> },
       { label: 'Reportes', section: 'reportes', icon: <FiBarChart2 /> },
+      { label: 'Contactos', section: 'contactos', icon: <FiPhone /> },
     ],
     buffet: [
       { label: 'Inicio', section: 'inicio', icon: <FiHome /> },
       { label: 'Stock', section: 'stock', icon: <FiBox /> },
       { label: 'Compras', section: 'compras', icon: <FiShoppingCart /> },
       { label: 'Ventas', section: 'ventas', icon: <FiTrendingUp /> },
+      { label: 'Contactos', section: 'contactos', icon: <FiPhone /> },
     ],
     socios: [
       { label: 'Inicio', section: 'inicio', icon: <FiHome /> },
       { label: 'Socios', section: 'socios', icon: <FiUsers /> },
       { label: 'Actividades', section: 'actividades', icon: <FiActivity /> },
       { label: 'Inscripciones', section: 'inscripciones', icon: <FiUserCheck /> },
+      { label: 'Contactos', section: 'contactos', icon: <FiPhone /> },
     ],
   };
 
@@ -123,18 +128,21 @@ function Dashboard({ user, onLogout }) {
       if (selectedSection === 'establecimientos') return <EstablecimientosSection modalOpen={modalOpen} setModalOpen={setModalOpen} />;
       if (selectedSection === 'horarios') return <HorariosSection />;
       if (selectedSection === 'mantenimiento') return <MantenimientoSection />;
+      if (selectedSection === 'contactos') return <ContactosSection />;
       return <CanchasSection />;
     }
     if (admin.role === 'cobranzas') {
       if (selectedSection === 'pagos') return <PagosSection />;
       if (selectedSection === 'deudas') return <DeudasSection />;
       if (selectedSection === 'reportes') return <ReportesSection />;
+      if (selectedSection === 'contactos') return <ContactosSection />;
       return <CobranzasSection />;
     }
     if (admin.role === 'buffet') {
       if (selectedSection === 'stock') return <StockSection modalOpen={modalOpen} setModalOpen={setModalOpen} />;
       if (selectedSection === 'compras') return <ComprasSection />;
       if (selectedSection === 'ventas') return <VentasSection />;
+      if (selectedSection === 'contactos') return <ContactosSection />;
       return <BuffetSection 
         onNuevoStock={() => setSelectedSection('stock')} 
         onNuevaCompra={() => setSelectedSection('compras')} 
@@ -145,8 +153,13 @@ function Dashboard({ user, onLogout }) {
       if (selectedSection === 'socios') return <SociosSection />;
       if (selectedSection === 'actividades') return <ActividadesSection />;
       if (selectedSection === 'inscripciones') return <InscripcionesSection />;
+      if (selectedSection === 'contactos') return <ContactosSection />;
       return <SociosSection />;
     }
+    
+    // Sección de contactos disponible para todos los roles
+    if (selectedSection === 'contactos') return <ContactosSection />;
+    
     return <div>Selecciona una opción del menú.</div>;
   };
 
