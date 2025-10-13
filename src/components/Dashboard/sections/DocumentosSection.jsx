@@ -12,6 +12,7 @@ function DocumentosSection() {
 
   const [documentos, setDocumentos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const categorias = [
     { value: 'todos', label: 'Todos los documentos', icon: '📁' },
@@ -39,7 +40,7 @@ function DocumentosSection() {
       if (selectedCategory !== 'todos') params.append('categoria', selectedCategory);
       if (searchTerm) params.append('search', searchTerm);
 
-      const response = await fetch(`http://localhost:3001/documentos?${params}`);
+      const response = await fetch(`${apiUrl}/documentos?${params}`);
       const data = await response.json();
       
       if (data.success) {
@@ -73,7 +74,7 @@ function DocumentosSection() {
       formData.append('año', (selectedYear || new Date().getFullYear()).toString());
       formData.append('descripcion', '');
 
-      const response = await fetch('http://localhost:3001/documentos/upload', {
+      const response = await fetch(`${apiUrl}/documentos/upload`, {
         method: 'POST',
         body: formData
       });
@@ -98,7 +99,7 @@ function DocumentosSection() {
 
   const handleDownload = async (id) => {
     try {
-      window.open(`http://localhost:3001/documentos/download/${id}`, '_blank');
+      window.open(`${apiUrl}/documentos/download/${id}`, '_blank');
     } catch (error) {
       console.error('Error descargando documento:', error);
       alert('Error descargando documento');
@@ -111,7 +112,7 @@ function DocumentosSection() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/documentos/${id}`, {
+      const response = await fetch(`${apiUrl}/documentos/${id}`, {
         method: 'DELETE'
       });
 
