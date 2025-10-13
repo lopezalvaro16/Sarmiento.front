@@ -99,10 +99,53 @@ function DocumentosSection() {
 
   const handleDownload = async (id) => {
     try {
-      window.open(`${apiUrl}/documentos/download/${id}`, '_blank');
+      // Obtener información del documento
+      const documento = documentos.find(doc => doc.id === id);
+      if (!documento) {
+        throw new Error('Documento no encontrado');
+      }
+      
+      // Usar endpoint del backend que maneja GitHub internamente
+      const response = await fetch(`${apiUrl}/documentos/download/${id}`);
+      
+      if (!response.ok) {
+        // Si es un error 404, intentar obtener más información
+        if (response.status === 404) {
+          try {
+            const errorData = await response.json();
+            if (errorData.message) {
+              alert(`❌ ${errorData.message}\n\n💡 ${errorData.suggestion || 'Intenta subir el archivo nuevamente.'}`);
+              return;
+            }
+          } catch (jsonError) {
+            // Si no se puede parsear el JSON, usar mensaje genérico
+          }
+        }
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+      
+      // Obtener el blob del archivo
+      const blob = await response.blob();
+      
+      // Crear URL temporal para el blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Crear enlace de descarga
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = documento.nombre;
+      
+      // Agregar al DOM temporalmente y hacer clic
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpiar
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
     } catch (error) {
       console.error('Error descargando documento:', error);
-      alert('Error descargando documento');
+      alert('❌ Error descargando documento: ' + error.message + '\n\n💡 El archivo puede no estar disponible. Intenta subirlo nuevamente.');
     }
   };
 
