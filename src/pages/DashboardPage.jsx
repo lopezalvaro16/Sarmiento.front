@@ -1,18 +1,17 @@
 import React from 'react';
 import Dashboard from '../components/Dashboard/Dashboard';
-import { jwtDecode } from 'jwt-decode';
 
 function DashboardPage() {
-  const token = localStorage.getItem('token');
+  // Leer usuario desde localStorage (guardado en el login)
+  const userStr = localStorage.getItem('user');
   let user = { username: '', role: '' };
 
-  if (token) {
+  if (userStr) {
     try {
-      const decoded = jwtDecode(token);
-      user = { username: decoded.username, role: decoded.role };
+      user = JSON.parse(userStr);
     } catch (e) {
-      localStorage.removeItem('token');
-      window.location.href = '/';
+      console.error('Error al leer usuario:', e);
+      user = { username: '', role: '' };
     }
   }
 

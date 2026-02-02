@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 function InicioSection({ user, onNuevaReserva, onIrReservas, onIrHorarios }) {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchReservas = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${apiUrl}/reservas`);
-        const data = await res.json();
-        setReservas(data);
+        const { data, error: supabaseError } = await supabase
+          .from('reservas')
+          .select('*')
+          .order('fecha', { ascending: true });
+        
+        if (supabaseError) throw supabaseError;
+        
+        setReservas(data || []);
         setError('');
       } catch (err) {
+        console.error('Error al cargar reservas:', err);
         setError('Error al cargar reservas');
       }
       setLoading(false);

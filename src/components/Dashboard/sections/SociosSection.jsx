@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 function NuevoSocioModal({ open, onClose, onSubmit, initialData, modo }) {
   const [form, setForm] = useState(initialData || {
@@ -205,8 +206,6 @@ function SociosSection() {
   const [filtroBuscar, setFiltroBuscar] = useState('');
   const [socioExpandido, setSocioExpandido] = useState(null);
 
-  const apiUrl = import.meta.env.VITE_API_URL;
-
   const [sociosOriginales, setSociosOriginales] = useState([]);
 
   useEffect(() => {
@@ -216,11 +215,15 @@ function SociosSection() {
   const fetchSocios = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/socios`);
-      if (!res.ok) throw new Error('Error al cargar socios');
-      const data = await res.json();
-      setSociosOriginales(data);
-      setSocios(data);
+      const { data, error } = await supabase
+        .from('socios')
+        .select('*')
+        .order('apellido', { ascending: true });
+      
+      if (error) throw error;
+      
+      setSociosOriginales(data || []);
+      setSocios(data || []);
       setError('');
     } catch (err) {
       setError('Error al cargar socios');
@@ -256,14 +259,16 @@ function SociosSection() {
 
   async function handleCreateSocio(form) {
     try {
-      const res = await fetch(`${apiUrl}/socios`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al crear socio');
+      const { data, error } = await supabase
+        .from('socios')
+        .insert([form])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
       setSocios(prev => [...prev, data]);
+      setSociosOriginales(prev => [...prev, data]);
       setModalOpen(false);
       toast.success('Socio creado con éxito');
     } catch (err) {
@@ -273,14 +278,17 @@ function SociosSection() {
 
   async function handleEditSocio(form) {
     try {
-      const res = await fetch(`${apiUrl}/socios/${editSocio.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al editar socio');
+      const { data, error } = await supabase
+        .from('socios')
+        .update(form)
+        .eq('id', editSocio.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
       setSocios(prev => prev.map(s => s.id === data.id ? data : s));
+      setSociosOriginales(prev => prev.map(s => s.id === data.id ? data : s));
       setEditSocio(null);
       setModalOpen(false);
       setModo('crear');
@@ -293,12 +301,15 @@ function SociosSection() {
   const handleDelete = async (id) => {
     if (!window.confirm('¿Seguro que querés eliminar el socio?')) return;
     try {
-      const res = await fetch(`${apiUrl}/socios/${id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Error al eliminar');
-      }
+      const { error } = await supabase
+        .from('socios')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
       setSocios(prev => prev.filter(s => s.id !== id));
+      setSociosOriginales(prev => prev.filter(s => s.id !== id));
       toast.success('Socio eliminado');
     } catch (err) {
       toast.error(err.message || 'Error al eliminar socio');

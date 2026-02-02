@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 // Definir el rango de horarios permitidos (0 a 23)
 const HORAS_PERMITIDAS = Array.from({ length: 24 }, (_, i) => i);
@@ -227,25 +228,25 @@ function ReservasSection({ modalOpen, setModalOpen }) {
   const [reservasPorPagina] = useState(8); // Tarjetas más grandes pero claras para usuarios mayores
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false); // Para colapsar filtros en móvil
   const [reservaExpandida, setReservaExpandida] = useState(null); // Para expandir detalles de reserva
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Cargar reservas y establecimientos en paralelo
+        // Cargar reservas y establecimientos desde Supabase
         const [reservasRes, establecimientosRes] = await Promise.all([
-          fetch(`${apiUrl}/reservas`),
-          fetch(`${apiUrl}/establecimientos`)
+          supabase.from('reservas').select('*').order('fecha', { ascending: true }),
+          supabase.from('establecimientos').select('*')
         ]);
         
-        const reservasData = await reservasRes.json();
-        const establecimientosData = await establecimientosRes.json();
+        if (reservasRes.error) throw reservasRes.error;
+        if (establecimientosRes.error) throw establecimientosRes.error;
         
-        setReservas(reservasData);
-        setEstablecimientos(establecimientosData);
+        setReservas(reservasRes.data || []);
+        setEstablecimientos(establecimientosRes.data || []);
         setError('');
       } catch (err) {
+        console.error('Error al cargar datos:', err);
         setError('Error al cargar datos');
       }
       setLoading(false);
@@ -255,13 +256,14 @@ function ReservasSection({ modalOpen, setModalOpen }) {
 
   const handleCreateReserva = async (form) => {
     try {
-      const res = await fetch(`${apiUrl}/reservas`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al crear reserva');
+      const { data, error } = await supabase
+        .from('reservas')
+        .insert([form])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
       setReservas(prev => [...prev, data]);
       setModalOpen(false);
       toast.success('Reserva creada con éxito');
@@ -272,13 +274,15 @@ function ReservasSection({ modalOpen, setModalOpen }) {
 
   const handleEditReserva = async (form) => {
     try {
-      const res = await fetch(`${apiUrl}/reservas/${editReserva.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al editar reserva');
+      const { data, error } = await supabase
+        .from('reservas')
+        .update(form)
+        .eq('id', editReserva.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
       setReservas(prev => prev.map(r => r.id === data.id ? data : r));
       setEditReserva(null);
       setModalOpen(false);
@@ -292,8 +296,13 @@ function ReservasSection({ modalOpen, setModalOpen }) {
   const handleDelete = async (id) => {
     if (!window.confirm('¿Seguro que querés eliminar la reserva?')) return;
     try {
-      const res = await fetch(`${apiUrl}/reservas/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Error al eliminar');
+      const { error } = await supabase
+        .from('reservas')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
       setReservas(prev => prev.filter(r => r.id !== id));
       toast.success('Reserva eliminada');
     } catch (err) {

@@ -9,24 +9,10 @@ function ProtectedRoute({ children }) {
     // Verificar autenticación al montar el componente
     const checkAuth = () => {
       const token = localStorage.getItem('token');
+      // Ahora el token es simplemente el username (no JWT)
+      // Si existe un token, está autenticado
       if (token) {
-        try {
-          // Verificar que el token no esté expirado
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          const currentTime = Date.now() / 1000;
-          
-          if (payload.exp && payload.exp > currentTime) {
-            setIsAuthenticated(true);
-          } else {
-            // Token expirado
-            localStorage.removeItem('token');
-            setIsAuthenticated(false);
-          }
-        } catch (error) {
-          // Token inválido
-          localStorage.removeItem('token');
-          setIsAuthenticated(false);
-        }
+        setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
       }

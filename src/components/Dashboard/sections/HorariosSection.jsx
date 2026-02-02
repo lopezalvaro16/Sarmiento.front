@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaLock, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/lib/supabase';
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 // Horas del día 0..23
@@ -23,8 +24,6 @@ function HorariosSection() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [fechasConReservas, setFechasConReservas] = useState(new Set());
-
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   // Helpers de fecha sin sesgo por zona horaria
   function parseLocalDateFromInput(yyyyMmDd) {
@@ -139,13 +138,20 @@ function HorariosSection() {
     const fetchReservas = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${apiUrl}/reservas`);
-        const data = await res.json();
-        setReservas(data);
-        const unicas = Array.from(new Set(data.map(r => String(r.cancha))));
+        const { data, error } = await supabase
+          .from('reservas')
+          .select('*')
+          .order('fecha', { ascending: true });
+        
+        if (error) throw error;
+        
+        setReservas(data || []);
+        const unicas = Array.from(new Set((data || []).map(r => String(r.cancha))));
         setCanchas(unicas);
         if (!canchaSel && unicas.length > 0) setCanchaSel(unicas[0]);
-      } catch (err) {}
+      } catch (err) {
+        console.error('Error al cargar reservas:', err);
+      }
       setLoading(false);
     };
     fetchReservas();

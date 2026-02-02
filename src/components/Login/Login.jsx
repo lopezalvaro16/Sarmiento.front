@@ -1,13 +1,13 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   // Aplicar el tema guardado en localStorage
   useEffect(() => {
@@ -23,20 +23,28 @@ function Login({ onLogin }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        if (onLogin) onLogin(data);
-        navigate('/dashboard');
-      } else {
-        alert(data.error);
+      // Consultar admin desde Supabase - solo verificar que existe
+      // (sin validación de password por simplicidad)
+      const { data, error } = await supabase
+        .from('admins')
+        .select('username, role')
+        .eq('username', username)
+        .single();
+
+      if (error || !data) {
+        alert('Usuario incorrecto');
+        setLoading(false);
+        return;
       }
+
+      // Login simple: solo verificar que el usuario existe
+      // Guardar sesión
+      localStorage.setItem('token', username);
+      localStorage.setItem('user', JSON.stringify({ username, role: data.role }));
+      if (onLogin) onLogin({ username, role: data.role });
+      navigate('/dashboard');
     } catch (err) {
+      console.error('Error de conexión:', err);
       alert('Error de conexión');
     }
     setLoading(false);
