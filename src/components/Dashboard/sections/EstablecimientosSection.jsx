@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 function NuevoEstablecimientoModal({ open, onClose, onSubmit, initialData, modo }) {
   const [form, setForm] = useState(initialData || {
@@ -87,33 +88,45 @@ function EstablecimientosSection({ modalOpen, setModalOpen }) {
   const [editEstablecimiento, setEditEstablecimiento] = useState(null);
   const [modo, setModo] = useState('crear');
   const [filtroNombre, setFiltroNombre] = useState('');
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchEstablecimientos = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${apiUrl}/establecimientos`);
-        const data = await res.json();
-        setEstablecimientos(data);
-        setError('');
+        const { data, error } = await supabase
+          .from('establecimientos')
+          .select('*')
+          .order('id', { ascending: true });
+
+        if (error) {
+          console.error('Error al cargar establecimientos desde Supabase:', error);
+          setError('Error al cargar establecimientos');
+        } else {
+          setEstablecimientos(data || []);
+          setError('');
+        }
       } catch (err) {
+        console.error('Error inesperado al cargar establecimientos:', err);
         setError('Error al cargar establecimientos');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchEstablecimientos();
   }, []);
 
   const handleCreateEstablecimiento = async (form) => {
     try {
-      const res = await fetch(`${apiUrl}/establecimientos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al crear establecimiento');
+      const { data, error } = await supabase
+        .from('establecimientos')
+        .insert(form)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message || 'Error al crear establecimiento');
+      }
+
       setEstablecimientos(prev => [...prev, data]);
       setModalOpen(false);
       toast.success('Establecimiento creado con éxito');
@@ -124,13 +137,17 @@ function EstablecimientosSection({ modalOpen, setModalOpen }) {
 
   const handleEditEstablecimiento = async (form) => {
     try {
-      const res = await fetch(`${apiUrl}/establecimientos/${editEstablecimiento.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al editar establecimiento');
+      const { data, error } = await supabase
+        .from('establecimientos')
+        .update(form)
+        .eq('id', editEstablecimiento.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message || 'Error al editar establecimiento');
+      }
+
       setEstablecimientos(prev => prev.map(e => e.id === data.id ? data : e));
       setEditEstablecimiento(null);
       setModalOpen(false);
@@ -144,8 +161,15 @@ function EstablecimientosSection({ modalOpen, setModalOpen }) {
   const handleDelete = async (id) => {
     if (!window.confirm('¿Seguro que querés eliminar el establecimiento?')) return;
     try {
-      const res = await fetch(`${apiUrl}/establecimientos/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Error al eliminar');
+      const { error } = await supabase
+        .from('establecimientos')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw new Error(error.message || 'Error al eliminar');
+      }
+
       setEstablecimientos(prev => prev.filter(e => e.id !== id));
       toast.success('Establecimiento eliminado');
     } catch (err) {

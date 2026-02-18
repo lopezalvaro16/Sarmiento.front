@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 const ESTADOS = [
   { value: 'todos', label: 'Todos' },
@@ -34,32 +35,33 @@ function MantenimientoSection() {
   const [editTarea, setEditTarea] = useState(null);
   const [editForm, setEditForm] = useState({ fecha: '', descripcion: '', responsable: '', cancha: '' });
   const [editEstablecimientoSeleccionado, setEditEstablecimientoSeleccionado] = useState('');
-  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Cargar tareas y establecimientos en paralelo
-        const [tareasRes, establecimientosRes] = await Promise.all([
-          fetch(`${apiUrl}/mantenimientos`),
-          fetch(`${apiUrl}/establecimientos`)
-        ]);
-        
-        const tareasData = await tareasRes.json();
-        const establecimientosData = await establecimientosRes.json();
-        
-        setTareas(tareasData);
-        setEstablecimientos(establecimientosData);
-        
-        // Mantener canchas para compatibilidad con filtros existentes
-        const unicas = Array.from(new Set(tareasData.map(t => String(t.cancha))));
-        setCanchas(unicas);
-        setError('');
+        const [{ data: tareasData, error: tareasError }, { data: establecimientosData, error: establecimientosError }] =
+          await Promise.all([
+            supabase.from('mantenimientos').select('*').order('fecha', { ascending: false }),
+            supabase.from('establecimientos').select('*').order('nombre', { ascending: true })
+          ]);
+
+        if (tareasError || establecimientosError) {
+          console.error('Error al cargar datos de mantenimiento:', tareasError || establecimientosError);
+          setError('Error al cargar datos');
+        } else {
+          setTareas(tareasData || []);
+          setEstablecimientos(establecimientosData || []);
+          const unicas = Array.from(new Set((tareasData || []).map(t => String(t.cancha))));
+          setCanchas(unicas);
+          setError('');
+        }
       } catch (err) {
+        console.error('Error inesperado al cargar datos de mantenimiento:', err);
         setError('Error al cargar datos');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchData();
   }, [filtroEstado, filtroCancha, agregando]);
@@ -71,15 +73,18 @@ function MantenimientoSection() {
     if (!form.fecha || !form.descripcion || !form.cancha) return;
     setLoadingBtn(true);
     try {
-      const res = await fetch(`${apiUrl}/mantenimientos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, estado: 'pendiente' }),
-      });
-      if (!res.ok) throw new Error('Error al crear tarea');
-      const nueva = await res.json();
+      const { data, error } = await supabase
+        .from('mantenimientos')
+        .insert({ ...form, estado: 'pendiente' })
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message || 'Error al crear tarea');
+      }
+
       setForm({ fecha: '', descripcion: '', responsable: '', cancha: '' });
-      setTareas(prev => [nueva, ...prev]);
+      setTareas(prev => [data, ...prev]);
       setError('');
       toast.success('Tarea creada con éxito');
     } catch (err) {
@@ -91,13 +96,17 @@ function MantenimientoSection() {
   const cambiarEstado = async (id, nuevoEstado) => {
     setLoadingEstadoId(id);
     try {
-      const res = await fetch(`${apiUrl}/mantenimientos/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estado: nuevoEstado }),
-      });
-      if (!res.ok) throw new Error('Error al cambiar estado');
-      const actualizada = await res.json();
+      const { data, error } = await supabase
+        .from('mantenimientos')
+        .update({ estado: nuevoEstado })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message || 'Error al cambiar estado');
+      }
+
       setTareas(prev => prev.map(t => t.id === id ? actualizada : t));
       setError('');
       toast.success('Estado actualizado con éxito');
@@ -124,13 +133,17 @@ function MantenimientoSection() {
     if (!editForm.fecha || !editForm.descripcion || !editForm.cancha) return;
     setLoadingBtn(true);
     try {
-      const res = await fetch(`${apiUrl}/mantenimientos/${editTarea.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm),
-      });
-      if (!res.ok) throw new Error('Error al actualizar tarea');
-      const actualizada = await res.json();
+      const { data, error } = await supabase
+        .from('mantenimientos')
+        .update(editForm)
+        .eq('id', editTarea.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message || 'Error al actualizar tarea');
+      }
+
       setTareas(prev => prev.map(t => t.id === editTarea.id ? actualizada : t));
       setEditModalOpen(false);
       setEditTarea(null);
@@ -147,10 +160,15 @@ function MantenimientoSection() {
   const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar esta tarea?')) return;
     try {
-      const res = await fetch(`${apiUrl}/mantenimientos/${id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Error al eliminar tarea');
+      const { error } = await supabase
+        .from('mantenimientos')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw new Error(error.message || 'Error al eliminar tarea');
+      }
+
       setTareas(prev => prev.filter(t => t.id !== id));
       toast.success('Tarea eliminada con éxito');
     } catch (err) {
@@ -161,13 +179,17 @@ function MantenimientoSection() {
   const reabrirTarea = async (id) => {
     setLoadingEstadoId(id);
     try {
-      const res = await fetch(`${apiUrl}/mantenimientos/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estado: 'pendiente' }),
-      });
-      if (!res.ok) throw new Error('Error al reabrir tarea');
-      const actualizada = await res.json();
+      const { data, error } = await supabase
+        .from('mantenimientos')
+        .update({ estado: 'pendiente' })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message || 'Error al reabrir tarea');
+      }
+
       setTareas(prev => prev.map(t => t.id === id ? actualizada : t));
       toast.success('Tarea reabierta con éxito');
     } catch (err) {
